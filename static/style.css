@@ -1,0 +1,40 @@
+html {
+    font-family: "Times";
+}
+
+body {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form__fieldset {
+    padding: 4px 2px;
+}
+
+.form__fieldset:not(:last-of-type) {
+    border-bottom: 10px solid rgba(0,0,0,0.1);
+}
+
+.form__input {
+    font-size: 1rem;
+}
+
+.form__select {
+    padding: 4px 2px;
+}
+
+.form__label {
+    margin-right: 20px;
+}
+
+.form__submit {
+    padding: 8px 16px;
+    border-radius: 4px;
+    float: right;
+}
+
+.form__submit:hover {
+    background-color: #1c2023;
+    color: white;
+}

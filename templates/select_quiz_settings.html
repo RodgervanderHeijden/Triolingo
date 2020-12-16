@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+
+{% block title %}Triolingo - ga quizzen!{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Select the settings for your quiz!</h1>
+
+
+                <form method="POST" action="/quiz">
+                    <div class="form__fieldset">
+                        <label for="number" class="form__label">Hoeveel woorden:</label>
+                        <input type="number" name="amount" id="amount" class="form__input" />
+                    </div>
+
+                    <div class="form__fieldset">
+                        <label for="mode" class="form__label">Account:</label>
+                        <select name="mode" id="mode" class="form__input form__select">
+                            <option value="Mastering words">Mastering words</option>
+                            <option value="Mixture">Mixture</option>
+                            <option value="Learning new words">Learning new words</option>
+                        </select>
+                    </div>
+
+                    <div class="form__fieldset">
+                        <button type="submit" class="btn btn-primary form__submit form__input ">Enter</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
