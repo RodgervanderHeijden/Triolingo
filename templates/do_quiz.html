@@ -9,7 +9,9 @@
                 <h1>Your quiz!</h1>
                 <!-- TODO: the processed text below should be input data -->
 
-                <p>What does <i>{{ processed_text }}</i> mean?</p>
+                <p>What does <i>{{ woordje }}</i> mean?</p>
+
+                <p>{{ processed_text }}</p>
 
                 <form method="POST">
                     <div class="form__fieldset">
@@ -21,18 +23,12 @@
                         <button type="submit" name="submit" class="form__input btn btn-primary">Enter</button>
                     </div>
                 </form>
-                <p>{{ processed_text }}</p>
 
 
                 <h1>Selected settings:</h1>
-                <p>You've opted to do {{ formulier.form.get("amount") }} questions on the {{ formulier.form.get("mode") }} mode!</p>
+                <p>You've opted to do {{ settings.form.get("amount") }} questions on the {{ settings.form.get("mode") }} mode!</p>
 
 
-                <ol>
-                {% for entry in entries %}
-                    <li>{{ entry[1] }} on {{ entry[0] }}</li>
-                {% endfor %}
-                </ol>
 
                 <h1>Tabel met data:</h1>
 
