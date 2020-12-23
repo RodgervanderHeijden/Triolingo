@@ -1,61 +1,27 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 import pandas as pd
 from import_lexicon import import_lexicon
 
 app = Flask(__name__)
 transactions = []
 list_of_numbers = [1, 2, 4]
+global settings
+i = [0]
 
-woordjes = ["hallo", " wereld"]
-settings = []
-
-
-@app.route("/")
-def index():
-    return render_template("homepage.html")
-
-
-@app.route("/about")
-def about():
-    return render_template("about_triolingo.html")
-
-
-@app.route("/settings", methods=["GET", "POST"])
-def select_settings():
-    return render_template("select_quiz_settings.html")
-
-
-@app.route("/form", methods=["GET", "POST"])
-def form():
-    if request.method == "POST":
-        print(request.form)
-        print(request.form.get("account"))
-        transactions.append(
-            (
-                request.form.get("date"),
-                float(request.form.get("amount")),
-                request.form.get("account"),
-            )
-        )
-    return render_template("outdated - form.html")
-
-
-@app.route("/quiz", methods=['POST', 'GET'])
+@app.route("/quiz", methods=['POST'])
 def quiz_page():
-    #mode = str()
-    #number_of_questions = int()
     df = import_lexicon()
     quizzed_dataframe = df.iloc[list_of_numbers]
 
-    i = 0
-    text = request.form.get('text')
-    print(i)
-    print(quizzed_dataframe.iloc[[i]])
-    print(quizzed_dataframe['Polish'][1])
-
-    # TODO: check whether necessary
-    if (request.method == "GET"):
-        return render_template("select_quiz_settings.html")
+    mode = request.form.get("mode")
+    questions = request.form.get("amount")
+    current_question = 1
+    if request.form.get("mode") == "Mastering words":
+        difficulty = "mastery"
+    elif request.form.get("mode") == "Mixture":
+        difficulty = "mixed"
+    elif request.form.get("mode") == "Learning new words":
+        difficulty = "new"
 
     # After been referred from settings, so start of the quiz
     # Arguments:
@@ -63,78 +29,95 @@ def quiz_page():
     # Arguments passed on:
     #   settings (TODO: required?)
     #   the first word of the quizzes dataframe
-    elif (request.method == "POST") & (request.headers.get("Referer")[-9:] == "/settings"):
+    if (request.method == "POST") & (request.headers.get("Referer")[-9:] == "/settings"):
 
-        mode = request.form.get("mode")
+
+        # Probably outdated
         number_of_questions = request.form.get("amount")
-
+        settings = request
         print(mode, number_of_questions)
 
-        if request.form.get("mode") == "Mastering words":
-            difficulty = "mastery"
-        elif request.form.get("mode") == "Mixture":
-            difficulty = "mixed"
-        elif request.form.get("mode") == "Learning new words":
-            difficulty = "new"
 
-
-        quizzed_data = quizzed_dataframe.iloc[[list_of_numbers[i]]]
+        quizzed_data = quizzed_dataframe.iloc[[list_of_numbers[i[0]]]]
         if difficulty == "mastery":
-            return render_template("do_quiz.html", settings=request,
+            return render_template("do_quiz.html", settings=settings,
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers,
-                                   woordje=df['Polish'][1])
+                                   woordje=df['Polish'][1], mode=mode,
+                                   questions=questions, current_question=current_question)
 
         elif difficulty == "mixed":
-            return render_template("do_quiz.html", settings=request,
+            return render_template("do_quiz.html", settings=settings,
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers,
-                                   woordje=df['Polish'][2])
+                                   woordje=df['Polish'][2], mode=mode,
+                                   questions=questions, current_question=current_question)
 
         elif difficulty == "new":
-            return render_template("do_quiz.html", settings=request,
+            return render_template("do_quiz.html", settings=settings,
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers,
-                                   woordje=df['Polish'][3])
+                                   woordje=df['Polish'][3], mode=mode,
+                                   questions=questions, current_question=current_question)
 
     elif (request.method == "POST") & (request.headers.get('Referer')[-5:] == "/quiz"):
-        #print(mode, number_of_questions)
+        previous_q = i[0]
+        next_q = previous_q+1
+        i.append(next_q)
+        i.pop(0)
+        print(i)
+        print(i)
+        print(i)
+        print(i)
+        print(i)
+        text = request.form.get('text')
+        # i now properly works
+        # TODO: make i[0] a subscript to actually present the correct word.
+        quizzed_data = quizzed_dataframe.iloc[[0]]
         try:
-            print(i)
+            #print(i)
             if text == "Goed antwoord":
                 processed_text = text.upper()
-                quizzed_data = df.iloc[[list_of_numbers[i + 1]]]
-                return render_template("do_quiz.html", entries=settings,
+                return render_template("do_quiz.html",
                                        tables=[quizzed_data.to_html(classes="data", header="true")],
                                        random_numbers=list_of_numbers, processed_text=processed_text,
-                                       formulier=request, woordje=df['Polish'][2])
+                                       formulier=request, woordje=df['Polish'][2], mode=difficulty,
+                                       questions=questions, current_question=current_question)
             else:
                 processed_text = text
-                quizzed_data = quizzed_dataframe.iloc[[list_of_numbers[i]]]
-                return render_template("do_quiz.html", entries=settings,
+                return render_template("do_quiz.html",
                                        tables=[quizzed_data.to_html(classes="data", header="true")],
                                        random_numbers=list_of_numbers, processed_text=processed_text,
-                                       formulier=request, woordje=df['Polish'][2])
+                                       formulier=request, woordje=df['Polish'][2], mode=mode,
+                                       questions=questions, current_question=current_question)
         except AttributeError:
-            quizzed_data = quizzed_dataframe.iloc[[list_of_numbers[i]]]
-            return render_template("do_quiz.html", entries=settings,
+            return render_template("do_quiz.html",
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers, formulier=request,
-                                   woordje=df['Polish'][2])
+                                   woordje=df['Polish'][2], mode=mode,
+                                   questions=questions, current_question=current_question)
 
 
+# Page to select settings
+# Relevant settings:
+## Difficulty
+## Number of words
+# Page links to quiz, where these settings are read.
+@app.route("/settings", methods=["GET"])
+def select_settings():
+    return render_template("select_quiz_settings.html")
 
 
+# Standard homepage.
+@app.route("/")
+def index():
+    return render_template("homepage.html")
 
 
-@app.route("/json", methods=['POST', 'GET'])
-def json():
-    if request.is_json:
-        req = request.get_json()
-        return "JSON received!", 200
-
-    else:
-        return "No JSON received!", 400
+# Standard about page.
+@app.route("/about")
+def about():
+    return render_template("about_triolingo.html")
 
 
 if __name__ == '__main__':

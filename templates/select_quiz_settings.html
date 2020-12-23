@@ -9,10 +9,10 @@
                 <h1>Select the settings for your quiz!</h1>
 
 
-                <form method="POST" action="/quiz">
+                <form method="POST" action="{{ url_for('quiz_page') }}">
                     <div class="form__fieldset">
                         <label for="number" class="form__label">Hoeveel woorden:</label>
-                        <input type="number" name="amount" id="amount" class="form__input" />
+                        <input autofocus type="number" name="amount" id="amount" class="form__input" />
                     </div>
 
                     <div class="form__fieldset">

@@ -2,6 +2,6 @@ import pandas as pd
 
 def import_lexicon():
     # import the vocabulaire
-    file = 'Lexicon.csv'
+    file = r'C:\Users\Rodger\Documents\Data Science\[Online courses]\Flask learnings\Julian Nash\app\Lexicon.csv'
     df = pd.read_csv(file)
     return df
