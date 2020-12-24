@@ -36,6 +36,19 @@
                 {% for table in tables %}
                     {{ table|safe }}
                 {% endfor %}
+
+
+                {% if no_questions > 2 %}
+                    <p>Done! Show button</p>
+                    <form method="POST">
+                        <div class="form__fieldset" action="{{ url_for('show_quiz_data', difficulty=difficulty, no_questions=no_questions) }}">
+                            <label class="form__label">Your guess: </label>
+                            <input autofocus type="text" name="text" class="form__input" />
+                            <label class="form__label"></label>
+                            <button type="submit" name="submit" class="form__input btn btn-primary">Go next</button>
+                        </div>
+                    </form>
+                {% endif %}
             </div>
         </div>
     </div>

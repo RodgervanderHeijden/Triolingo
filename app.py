@@ -14,7 +14,14 @@ current_question = [0]
 def confirm_quiz_settings():
     # De request hier komt van settings af
     # en bestaat dus uit mode en questions
-    questions = request.form.get("amount")
+    questions = int(request.form.get("amount"))
+    print(questions+1)
+    print(questions+1)
+    print(questions+1)
+    print(questions+1)
+    print(questions+1)
+    print(questions+1)
+
 
     if request.form.get("mode") == "Mastering words":
         difficulty = "mastery"
@@ -30,7 +37,7 @@ def confirm_quiz_settings():
 def quiz_page(difficulty="mastery", no_questions=10):
 
     difficulty=difficulty
-    no_questions=no_questions
+    no_questions=int(no_questions)
 
     print(difficulty, no_questions)
     df = import_lexicon()
@@ -127,14 +134,14 @@ def quiz_page(difficulty="mastery", no_questions=10):
 
 
 # TODO: receive quiz data as argument
-@app.route("/after_quiz", methods=["GET"])
-def show_quiz_data():
+@app.route("/after_quiz/<difficulty>/<no_questions>/", methods=["GET", "POST"])
+def show_quiz_data(difficulty, no_questions):
 
     # TODO
     def update_lexicon():
         pass
 
-    return render_template("after_quiz.html")
+    return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions)
 
 
 

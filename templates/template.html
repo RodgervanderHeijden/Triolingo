@@ -8,7 +8,8 @@
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
         <!-- Custom CSS -->
-        <link rel="stylesheet" href="../static/style.css" />
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" >
 
 
         <title>{% block title %}{% endblock %}</title>
@@ -16,8 +17,7 @@
 
 
     <body>
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3" >
             <div class="container-fluid">
                 <a class="navbar-brand" href="/">Flask</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
