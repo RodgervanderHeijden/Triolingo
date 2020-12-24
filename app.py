@@ -48,7 +48,6 @@ def quiz_page(difficulty="mastery", no_questions=10):
     if (request.method == "POST") & (request.headers.get("Referer")[-9:] == "/settings"):
         # Probably outdated
         settings = request
-        print(mode, number_of_questions, questions)
 
         quizzed_data = quizzed_dataframe.iloc[[list_of_numbers[i[0]]]]
         if difficulty == "mastery":
@@ -112,17 +111,18 @@ def quiz_page(difficulty="mastery", no_questions=10):
                                    woordje=df['Polish'][2], mode=difficulty,
                                    current_question=current_question)
 
-
-    # pseudo
-    if aantal_vragen < no_questions:
-        do_vraag
-
-
-    else:
-        return redirect("after_quiz.html", difficulty=difficulty, no_questions=no_questions)
+    #
+    # # pseudo
+    # if aantal_vragen < no_questions:
+    #     do_vraag
+    #
+    #
+    # else:
+    #     return redirect("after_quiz.html", difficulty=difficulty, no_questions=no_questions)
     # TODO: send quiz data as argument
     #return redirect("after_quiz.html")
-    return render_template("do_quiz.html")
+    # TODO: hierin mist de zin/het woord ic en hoeveel van de quiz gedaan is.
+    return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions)
 
 
 
