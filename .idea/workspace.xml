@@ -3,10 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="a169c9c0-e64c-4086-807d-8db9b1b1379b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/about_triolingo.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/about_triolingo.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/after_quiz.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/after_quiz.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/do_quiz.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/do_quiz.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/template.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/template.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/homepage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/homepage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/quiz_confirmation.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quiz_confirmation.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/select_quiz_settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/select_quiz_settings.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,7 +135,7 @@
       <workItem from="1607818972908" duration="11661000" />
       <workItem from="1607969070673" duration="32328000" />
       <workItem from="1608305228346" duration="5666000" />
-      <workItem from="1608584372417" duration="30398000" />
+      <workItem from="1608584372417" duration="31038000" />
     </task>
     <servers />
   </component>
@@ -181,17 +183,6 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="814" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1608775779529" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="jinja2-line">
-          <url>file://$PROJECT_DIR$/templates/do_quiz.html</url>
-          <line>40</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/app$read_data.coverage" NAME="read_data Coverage Results" MODIFIED="1608639372518" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../../[Portfolio]/Eindhovense plots/code" />
