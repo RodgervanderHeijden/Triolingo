@@ -1,27 +1,43 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, redirect
 import pandas as pd
 from import_lexicon import import_lexicon
 
 app = Flask(__name__)
-transactions = []
+
 list_of_numbers = [1, 2, 4]
 global settings
 i = [0]
+current_question = [0]
 
-@app.route("/quiz", methods=['POST'])
-def quiz_page():
-    df = import_lexicon()
-    quizzed_dataframe = df.iloc[list_of_numbers]
 
-    mode = request.form.get("mode")
+@app.route('/quiz_confirmation', methods=["POST"])
+def confirm_quiz_settings():
+    # De request hier komt van settings af
+    # en bestaat dus uit mode en questions
     questions = request.form.get("amount")
-    current_question = 1
+
     if request.form.get("mode") == "Mastering words":
         difficulty = "mastery"
     elif request.form.get("mode") == "Mixture":
         difficulty = "mixed"
     elif request.form.get("mode") == "Learning new words":
         difficulty = "new"
+
+    return render_template("quiz_confirmation.html", difficulty=difficulty,
+                           questions=questions)
+
+@app.route("/quiz/<difficulty>/<no_questions>/", methods=["POST"])
+def quiz_page(difficulty="mastery", no_questions=10):
+
+    difficulty=difficulty
+    no_questions=no_questions
+
+    print(difficulty, no_questions)
+    df = import_lexicon()
+    quizzed_dataframe = df.iloc[list_of_numbers]
+    # Tot hier dus
+    current_question = 1
+    difficulty=difficulty
 
     # After been referred from settings, so start of the quiz
     # Arguments:
@@ -30,37 +46,36 @@ def quiz_page():
     #   settings (TODO: required?)
     #   the first word of the quizzes dataframe
     if (request.method == "POST") & (request.headers.get("Referer")[-9:] == "/settings"):
-
-
         # Probably outdated
-        number_of_questions = request.form.get("amount")
         settings = request
-        print(mode, number_of_questions)
-
+        print(mode, number_of_questions, questions)
 
         quizzed_data = quizzed_dataframe.iloc[[list_of_numbers[i[0]]]]
         if difficulty == "mastery":
             return render_template("do_quiz.html", settings=settings,
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers,
-                                   woordje=df['Polish'][1], mode=mode,
-                                   questions=questions, current_question=current_question)
+                                   woordje=df['Polish'][1], current_question=current_question,
+                                   )
 
         elif difficulty == "mixed":
             return render_template("do_quiz.html", settings=settings,
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers,
-                                   woordje=df['Polish'][2], mode=mode,
-                                   questions=questions, current_question=current_question)
+                                   woordje=df['Polish'][2], current_question=current_question,
+                                   )
 
         elif difficulty == "new":
             return render_template("do_quiz.html", settings=settings,
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers,
-                                   woordje=df['Polish'][3], mode=mode,
-                                   questions=questions, current_question=current_question)
+                                   woordje=df['Polish'][3], current_question=current_question,
+                                   )
 
-    elif (request.method == "POST") & (request.headers.get('Referer')[-5:] == "/quiz"):
+
+    #print(number_of_questions)
+    #print(current_question, number_of_questions)
+    if (request.method == "POST") & (request.headers.get('Referer')[-5:] == "/quiz"):
         previous_q = i[0]
         next_q = previous_q+1
         i.append(next_q)
@@ -82,20 +97,45 @@ def quiz_page():
                                        tables=[quizzed_data.to_html(classes="data", header="true")],
                                        random_numbers=list_of_numbers, processed_text=processed_text,
                                        formulier=request, woordje=df['Polish'][2], mode=difficulty,
-                                       questions=questions, current_question=current_question)
+                                       current_question=current_question)
             else:
                 processed_text = text
                 return render_template("do_quiz.html",
                                        tables=[quizzed_data.to_html(classes="data", header="true")],
                                        random_numbers=list_of_numbers, processed_text=processed_text,
-                                       formulier=request, woordje=df['Polish'][2], mode=mode,
-                                       questions=questions, current_question=current_question)
+                                       formulier=request, woordje=df['Polish'][2], mode=difficulty,
+                                       current_question=current_question)
         except AttributeError:
             return render_template("do_quiz.html",
                                    tables=[quizzed_data.to_html(classes="data", header="true")],
                                    random_numbers=list_of_numbers, formulier=request,
-                                   woordje=df['Polish'][2], mode=mode,
-                                   questions=questions, current_question=current_question)
+                                   woordje=df['Polish'][2], mode=difficulty,
+                                   current_question=current_question)
+
+
+    # pseudo
+    if aantal_vragen < no_questions:
+        do_vraag
+
+
+    else:
+        return redirect("after_quiz.html", difficulty=difficulty, no_questions=no_questions)
+    # TODO: send quiz data as argument
+    #return redirect("after_quiz.html")
+    return render_template("do_quiz.html")
+
+
+
+# TODO: receive quiz data as argument
+@app.route("/after_quiz", methods=["GET"])
+def show_quiz_data():
+
+    # TODO
+    def update_lexicon():
+        pass
+
+    return render_template("after_quiz.html")
+
 
 
 # Page to select settings
