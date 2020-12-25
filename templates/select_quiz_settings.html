@@ -14,7 +14,7 @@
                         <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
                             <div class="form__fieldset">
                                 <label for="number" class="form__label">Hoeveel woorden:</label>
-                                <input autofocus type="number" name="amount" id="amount" class="form__input" />
+                                <input autofocus type="number" name="amount" id="amount" min="3" class="form__input" />
                             </div>
 
                             <div class="form__fieldset">

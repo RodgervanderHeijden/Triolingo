@@ -53,13 +53,15 @@ def quiz_page(difficulty="mastery", no_questions=10):
     print(i)
     while i[0] < no_questions:
 
-        if (request.method == "POST") & (answer_bool is not None):
+        if (request.method == "POST") & (answer_bool is None):
+            i[0] = int(0)
+            return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions)
+
+        elif (request.method == "POST") & (answer_bool is not None):
             # TODO
             # check whether answer is correct
             return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                    answer=answer_bool)
-
-        return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions)
 
     return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions))
 
