@@ -38,3 +38,7 @@ body {
     background-color: #1c2023;
     color: white;
 }
+
+.rightAlign {
+    float: right;
+}
