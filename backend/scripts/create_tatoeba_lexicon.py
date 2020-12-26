@@ -50,8 +50,9 @@ def clean_and_store_results(df):
     df.drop(labels=['lang_left', 'lang_right',
                     'sentenceID_nl', 'sentenceID_en',
                     'matched_sentenceID'], axis=1, inplace=True)
-    df.reset_index(inplace=True, drop=True)
-    df.to_csv('../data/tatoeba/tatoeba_sentences.csv')
+    print(df.columns)
+    df.reset_index(drop=True, inplace=True, )
+    df.to_csv('../data/tatoeba/tatoeba_sentences.csv', index=False)
 
 
 def create_tatoeba_lexicon():

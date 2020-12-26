@@ -41,7 +41,8 @@ def quiz_page(difficulty="mastery", no_questions=10):
         if (request.method == "POST") & (answer_bool is None):
             global quiz_df
             quiz_df = select_quiz_words(difficulty, no_questions)
-            current_word = quiz_df.iloc[current_question[0]]['Polish']
+            #current_word = quiz_df.iloc[current_question[0]]['Polish']
+            current_word = quiz_df.iloc[current_question[0]]['sentence_pl']
 
             quiz_df_html = [quiz_df.to_html(classes='data')]
             return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
@@ -51,7 +52,8 @@ def quiz_page(difficulty="mastery", no_questions=10):
             is_correct = check_answers(answer_bool, quiz_df, current_question[0])
             # Update index
             current_question[0] = current_question[0] + 1
-            current_word = quiz_df.iloc[current_question[0]]['Polish'] # line two
+            current_word = quiz_df.iloc[current_question[0]]['sentence_pl']
+            #current_word = quiz_df.iloc[current_question[0]]['Polish'] # line two
             # TODO
             # check whether answer is correct
             if is_correct:

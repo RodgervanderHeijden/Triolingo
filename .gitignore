@@ -1,9 +1,0 @@
-env/
-.idea/
-__pycache__/
-backend/data/my_data/
-backend/data/tatoeba/*.tsv
-backend/data/tatoeba/links.csv
-*.ipynb
-adjusted_quizzing.py
-.gitignore

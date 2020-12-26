@@ -7,12 +7,19 @@ from numpy import random, sum
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
-    return pd.read_csv("backend/data/my_data/Lexicon.csv")
+    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
+
+
+def import_tatoeba():
+    return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
 # Selecting what words are to be quizzed, based on the desired difficulty and quantity
 def select_quiz_words(difficulty, number_of_questions):
-    df = import_lexicon()
+    if difficulty == 'mastery':
+        df = import_tatoeba()
+    else:
+        df = import_lexicon()
 
     # TODO: create meaningful weights, based on mastery ánd difficulty
     # Weights: mastery of word
@@ -32,13 +39,11 @@ def check_answers(given_answer, quiz_df, question_number):
     # reset_index solved this, but is messy.
     quiz_df = quiz_df.reset_index()
 
-    print(quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-
-    print(given_answer, type([quiz_df._get_value(question_number, 'Dutch')]), type(quiz_df._get_value(question_number, 'English')))
-
-    print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-
-    print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
+    print(quiz_df._get_value(question_number, 'sentence_nl'), quiz_df._get_value(question_number, 'sentence_en'))
+    # print(quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
+    # print(given_answer, type([quiz_df._get_value(question_number, 'Dutch')]), type(quiz_df._get_value(question_number, 'English')))
+    # print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
+    # print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
 
     try:
         if (given_answer in quiz_df._get_value(question_number, 'Dutch')) or (given_answer in quiz_df._get_value(question_number, 'English')):
