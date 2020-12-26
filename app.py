@@ -1,11 +1,10 @@
-from flask import Flask, render_template, request, url_for, redirect
-from import_lexicon import import_lexicon
+from flask import Flask, render_template, request, url_for, redirect, flash
+from helper_functions import import_lexicon, select_quiz_words, check_answers
+import pandas as pd
 
 app = Flask(__name__)
 
 list_of_numbers = [1, 2, 4]
-global settings
-i = [0]
 current_question = [0]
 
 
@@ -23,45 +22,45 @@ def confirm_quiz_settings():
     elif request.form.get("mode") == "Learning new words":
         difficulty = "new"
     return render_template("quiz_confirmation.html", difficulty=difficulty,
-                           questions=questions, current_question=1)
+                           questions=questions)
 
 
 @app.route("/quiz/<difficulty>/<no_questions>/", methods=["POST"])
 def quiz_page(difficulty="mastery", no_questions=10):
-
-    print(request)
     print(request.form)
-
     # Get from URL
-    difficulty=difficulty
     no_questions=int(no_questions)
-    print(difficulty, no_questions)
-
-    # TODO: call python script (via import) that returns a df with to be quizzed vocab
-    df = import_lexicon()
-    quizzed_dataframe = df.iloc[list_of_numbers]
-
     answer_bool = request.form.get('text', None)
-    print(i)
-    previous_q = i[0]
-    next_q = previous_q+1
-    i.append(next_q)
-    i.pop(0)
-    print(i)
-    print(i)
-    print(i)
-    print(i)
-    while i[0] < no_questions:
 
+    # Upon first visit of the route, no answer has yet been given
+    # Here a to be quizzed sub df gets selected and returned
+
+
+    while current_question[0] < no_questions-1:
+        print(current_question[0], no_questions)
         if (request.method == "POST") & (answer_bool is None):
-            i[0] = int(0)
-            return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions)
+            global quiz_df
+            quiz_df = select_quiz_words(difficulty, no_questions)
+            current_word = quiz_df.iloc[current_question[0]]['Polish']
 
-        elif (request.method == "POST") & (answer_bool is not None):
+            quiz_df_html = [quiz_df.to_html(classes='data')]
+            return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
+                                   quiz_df=quiz_df_html, current_word=current_word)
+
+        else:
+            is_correct = check_answers(answer_bool, quiz_df, current_question[0])
+            # Update index
+            current_question[0] = current_question[0] + 1
+            current_word = quiz_df.iloc[current_question[0]]['Polish'] # line two
             # TODO
             # check whether answer is correct
+            if is_correct:
+                print("Correct")
+            else:
+                print("Incorrect!")
+            quiz_df_html = [quiz_df.to_html(classes='data')]
             return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                   answer=answer_bool)
+                                   answer=answer_bool, current_word=current_word, quiz_df=quiz_df_html)
 
     return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions))
 

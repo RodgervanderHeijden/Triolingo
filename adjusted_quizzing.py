@@ -50,10 +50,6 @@ def do_quiz1(no_of_q=3):
 
 do_quiz1()
 
-# %%
-
-df_lexicon['Polish'][0]
-
 
 # %%
 
@@ -91,10 +87,6 @@ def update_scores():
 
 update_scores()
 
-
-# %% md
-
-## also add: check when adding words whether they're already in the df
 
 # %%
 
