@@ -1,0 +1,10 @@
+﻿backend/data/my_data/
+backend/data/tatoeba/eng_sentences.tsv
+backend/data/tatoeba/pol_sentences.tsv
+backend/data/tatoeba/nld_sentences.tsv
+backend/data/tatoeba/links.csv
+env/
+adjusted_quizzing.py
+.idea/
+/[5] Quizzing and adding words.ipynb
+__pycache__/
