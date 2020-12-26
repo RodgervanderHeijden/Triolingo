@@ -7,7 +7,7 @@ from numpy import random, sum
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
-    return pd.read_csv("./Lexicon.csv")
+    return pd.read_csv("backend/data/my_data/Lexicon.csv")
 
 
 # Selecting what words are to be quizzed, based on the desired difficulty and quantity
