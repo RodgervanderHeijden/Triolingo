@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a169c9c0-e64c-4086-807d-8db9b1b1379b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lexicon - Copy.csv" beforeDir="false" afterPath="$PROJECT_DIR$/backend/data/my_data/Lexicon - Copy.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lexicon.csv" beforeDir="false" afterPath="$PROJECT_DIR$/backend/data/my_data/Lexicon.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helper_functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lexicon.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/data/my_data/lexicon.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lexie cleaned.csv" beforeDir="false" afterPath="$PROJECT_DIR$/backend/data/my_data/lexie cleaned.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lexie cleaned.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/backend/data/my_data/lexie cleaned.xlsx" afterDir="false" />
-    </list>
+    <list default="true" id="a169c9c0-e64c-4086-807d-8db9b1b1379b" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -225,7 +217,7 @@
       <workItem from="1608305228346" duration="5666000" />
       <workItem from="1608584372417" duration="37843000" />
       <workItem from="1608889085060" duration="26376000" />
-      <workItem from="1608988554379" duration="19359000" />
+      <workItem from="1608988554379" duration="19706000" />
     </task>
     <servers />
   </component>
