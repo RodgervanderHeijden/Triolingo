@@ -12,9 +12,9 @@
                 <div class="card">
                     <div class="card-body">
                         <h1>Jouw Triolingo quiz instellingen</h1>
-                        <p>You have opted for <i>{{ questions }}</i> questions in mode: <i>{{ difficulty }}</i></p>
+                        <p>You have opted for <i>{{ questions }}</i> questions in mode: <i>{{ mode }}</i> with difficulty <i>{{ difficulty }}</i></p>
 
-                        <form method="POST" action="{{ url_for('quiz_page', difficulty=difficulty, no_questions=questions) }}" >
+                        <form method="POST" action="{{ url_for('quiz_page', difficulty=difficulty, no_questions=questions, mode=mode) }}" >
                             <div class="form__fieldset">
 
                                 <label class="form__label"></label>

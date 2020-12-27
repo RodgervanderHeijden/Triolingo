@@ -4,7 +4,6 @@ import pandas as pd
 
 app = Flask(__name__)
 
-list_of_numbers = [1, 2, 4]
 current_question = [0]
 
 
@@ -13,21 +12,21 @@ def confirm_quiz_settings():
     # De request hier komt van settings af
     # en bestaat dus uit mode en questions
     questions = int(request.form.get("amount"))
-    print(questions+1)
-    print(questions+1)
-    if request.form.get("mode") == "Mastering words":
+    if request.form.get("difficulty") == "Mastering words":
         difficulty = "mastery"
-    elif request.form.get("mode") == "Mixture":
+    elif request.form.get("difficulty") == "Mixture":
         difficulty = "mixed"
-    elif request.form.get("mode") == "Learning new words":
+    elif request.form.get("difficulty") == "Learning new words":
         difficulty = "new"
+    mode = request.form.get("mode")
+    global current_question
+    current_question = [0]
     return render_template("quiz_confirmation.html", difficulty=difficulty,
-                           questions=questions)
+                           questions=questions, mode=mode)
 
 
-@app.route("/quiz/<difficulty>/<no_questions>/", methods=["POST"])
-def quiz_page(difficulty="mastery", no_questions=10):
-    print(request.form)
+@app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
+def quiz_page(difficulty="mastery", no_questions=10, mode='Sentence'):
     # Get from URL
     no_questions=int(no_questions)
     answer_bool = request.form.get('text', None)
@@ -37,16 +36,15 @@ def quiz_page(difficulty="mastery", no_questions=10):
 
 
     while current_question[0] < no_questions-1:
-        print(current_question[0], no_questions)
         if (request.method == "POST") & (answer_bool is None):
             global quiz_df
-            quiz_df = select_quiz_words(difficulty, no_questions)
+            quiz_df = select_quiz_words(difficulty, no_questions, mode)
             #current_word = quiz_df.iloc[current_question[0]]['Polish']
             current_word = quiz_df.iloc[current_question[0]]['sentence_pl']
 
             quiz_df_html = [quiz_df.to_html(classes='data')]
             return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                   quiz_df=quiz_df_html, current_word=current_word)
+                                   quiz_df=quiz_df_html, mode=mode, current_word=current_word)
 
         else:
             sentenceID = quiz_df.iloc[current_question[0]]['sentenceID']
@@ -64,20 +62,21 @@ def quiz_page(difficulty="mastery", no_questions=10):
                 print("Incorrect!")
             quiz_df_html = [quiz_df.to_html(classes='data')]
             return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                   answer=answer_bool, current_word=current_word, quiz_df=quiz_df_html)
+                                   answer=answer_bool, current_word=current_word, quiz_df=quiz_df_html,
+                                   mode=mode)
 
-    return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions))
+    return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions, mode=mode))
 
 
 # TODO: receive quiz data as argument
-@app.route("/after_quiz/<difficulty>/<no_questions>/", methods=["GET", "POST"])
-def show_quiz_data(difficulty, no_questions):
+@app.route("/after_quiz/<difficulty>/<no_questions>/<mode>/", methods=["GET", "POST"])
+def show_quiz_data(difficulty, no_questions, mode):
 
     # TODO
     def update_lexicon():
         pass
 
-    return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions)
+    return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions, mode=mode)
 
 
 

@@ -7,7 +7,8 @@ from numpy import random, sum
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
-    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
+#    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
+    return pd.read_csv("./backend/data/my_data/clean_lexicon.csv", sep=';')
 
 
 def import_tatoeba():
@@ -26,11 +27,23 @@ def retrieve_possible_answers(sentenceID):
     return possible_answers
 
 
+def retrieve_possible_other_answers(sentenceID):
+    possible_answers = []
+    data = import_lexicon()
+    data = data.loc[data['sentenceID'] == sentenceID]
+    for i, row in data.iterrows():
+        if row['lang'] == 'en':
+            possible_answers.append(row['sentence_en'])
+        elif row['lang'] == 'nl':
+            possible_answers.append(row['sentence_nl'])
+    return possible_answers
+
+
 # Selecting what words are to be quizzed, based on the desired difficulty and quantity
-def select_quiz_words(difficulty, number_of_questions):
-    if difficulty == 'mastery':
+def select_quiz_words(difficulty, number_of_questions, mode):
+    if mode == 'Sentences':
         df = import_tatoeba()
-    else:
+    elif mode == 'Words':
         df = import_lexicon()
 
     # TODO: create meaningful weights, based on mastery ánd difficulty
@@ -40,11 +53,7 @@ def select_quiz_words(difficulty, number_of_questions):
     choice_list = random.choice(a=range(len(df)), size=number_of_questions,
                                 replace=False, p=cum_weights)
 
-    print(choice_list)
-    # sentence_IDs = df.iloc[choice_list]['sentenceID']
-    # print(sentence_IDs)
     chosen_words_df = df.iloc[choice_list]
-    print(chosen_words_df)
     return chosen_words_df
 
 
@@ -54,33 +63,12 @@ def check_answers(given_answer, quiz_df, question_number):
     quiz_df = quiz_df.reset_index()
 
     sentenceID = quiz_df._get_value(question_number, 'sentenceID')
-    possible_answers = retrieve_possible_answers(sentenceID)
+    possible_answers = retrieve_possible_other_answers(sentenceID)
 
     if given_answer in possible_answers:
-        print(given_answer, )
-        print("Correct answer!")
         return True
     else:
-        print(given_answer, )
-        print("Incorrect answer!")
         return False
-
-    # print(quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-    # print(given_answer, type([quiz_df._get_value(question_number, 'Dutch')]), type(quiz_df._get_value(question_number, 'English')))
-    # print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-    # print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-
-    # try:
-    #     if (given_answer in quiz_df._get_value(question_number, 'Dutch')) or (given_answer in quiz_df._get_value(question_number, 'English')):
-    #         print(given_answer,)
-    #         print("Correct answer!")
-    #         return True
-    #     else:
-    #         print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-    #         print("Incorrect answer!")
-    #         return False
-    # except:
-    #     return False
 
 
 # Write updates to the dataframe
