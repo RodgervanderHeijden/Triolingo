@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Quiz your knowledge!{% endblock %}
+{% block title %}Triolingo - quiz your knowledge{% endblock %}
 
 {% block main %}
     <div class="container">
@@ -8,11 +8,19 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h1>Your quiz!</h1>
-                        <!-- TODO: the processed text below should be input data -->
-                        <p>What does <i>{{ current_word }}</i> mean?</p>
-
-                        <p>{{ answer_options }}</p>
+                        <h1>Your quiz</h1>
+                        {% if mode=='Words' %}
+                            <p>What does <i>{{ current_word }}</i> mean?</p>
+                        {% else %}
+                            <p>What does this sentence mean?</p>
+                            <p><i>{{ current_word }}</i></p>
+                            <p>Potential answers:</p>
+                            <ol>
+                            {% for answer_option in answer_options %}
+                                <li>{{ answer_option }}</li>
+                            {% endfor %}
+                            </ol>
+                        {% endif %}
 
                         <p>{{ answer_bool }}</p>
 
@@ -20,7 +28,6 @@
                             <div class="form__fieldset">
                                 <label class="form__label">Your guess: </label>
                                 <input autofocus type="text" name="text" class="form__input" />
-
 
                                 <label class="form__label"></label>
                                 <button type="submit" name="submit" class="form__input btn btn-primary">Enter</button>
@@ -31,24 +38,20 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h1>Selected settings:</h1>
-                            <p>You have opted for <i>{{ no_questions }}</i> questions in mode: <i>{{ mode }}</i> with difficulty <i>{{ difficulty }}</i></p>
+                        <h1>Selected settings</h1>
 
-
+                        <p>You have opted for <i>{{ no_questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-body">
-                        <h1>Tabel met data:</h1>
-
+                        <h1>The data in the current quiz (for testing)</h1>
                         {% for table in quiz_df %}
-
                             {{ table|safe }}
                         {% endfor %}
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

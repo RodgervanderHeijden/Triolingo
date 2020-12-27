@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Over je quiz!{% endblock %}
+{% block title %}Triolingo - about your quiz{% endblock %}
 
 
 
@@ -10,27 +10,23 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h1>Over je laatste quiz</h1>
-                        <p>Hier komt dan info over welke woorden gevraagd zijn, welke je goed had, de hele zinnetjes
-                            en dat soort ongein.</p>
-                        <p>You have opted for <i>{{ no_questions }}</i> questions in mode: <i>{{ mode }}</i>.</p>
-                        <p>You have opted for <i>{{ difficulty }}</i>.</p>
+                        <h1>About your most recent quiz</h1>
+                        <p>Lorem ipsum.</p>
+
+                        <p>You have opted for <i>{{ no_questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
                     </div>
                 </div>
 
-
                 <div class="card">
                     <div class="card-body">
-                        <h1>Tabel met data:</h1>
+                        <h1>Table of quizzed data</h1>
 
                         {% for table in quiz_df %}
                             {{ table|safe }}
                         {% endfor %}
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
 {% endblock %}

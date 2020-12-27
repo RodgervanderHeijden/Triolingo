@@ -29,9 +29,9 @@ def retrieve_all_correct_answers(sentenceID):
 
 # Selecting what words are to be quizzed, based on the desired difficulty and quantity
 def select_quiz_words(difficulty, number_of_questions, mode):
-    if mode == 'Sentences':
+    if mode == 'multiple choice':
         df = import_tatoeba()
-    elif mode == 'Words':
+    elif mode == 'open':
         df = import_lexicon()
 
     # TODO: create meaningful weights, based on mastery ánd difficulty

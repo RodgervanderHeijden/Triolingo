@@ -1,7 +1,7 @@
 {% extends "template.html" %}
 
 {% block title %}
-    Triolingo quiz
+    Triolingo - confirm your quiz settings
 {% endblock %}
 
 
@@ -11,14 +11,14 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h1>Jouw Triolingo quiz instellingen</h1>
-                        <p>You have opted for <i>{{ questions }}</i> questions in mode: <i>{{ mode }}</i> with difficulty <i>{{ difficulty }}</i></p>
+                        <h1>Your quiz settings</h1>
+                        <p>You have opted for <i>{{ questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
 
                         <form method="POST" action="{{ url_for('quiz_page', difficulty=difficulty, no_questions=questions, mode=mode) }}" >
                             <div class="form__fieldset">
 
                                 <label class="form__label"></label>
-                                <button autofocus type="submit" name="submit" class="form__input btn btn-primary rightAlign">Enter</button>
+                                <button autofocus type="submit" name="submit" class="form__input btn btn-primary rightAlign">Start</button>
                             </div>
                         </form>
                     </div>
