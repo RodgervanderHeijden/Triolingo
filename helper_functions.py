@@ -15,21 +15,9 @@ def import_tatoeba():
     return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
-def retrieve_possible_answers(sentenceID):
+def retrieve_all_correct_answers(sentenceID):
     possible_answers = []
     data = import_tatoeba()
-    data = data.loc[data['sentenceID'] == sentenceID]
-    for i, row in data.iterrows():
-        if row['lang'] == 'en':
-            possible_answers.append(row['sentence_en'])
-        elif row['lang'] == 'nl':
-            possible_answers.append(row['sentence_nl'])
-    return possible_answers
-
-
-def retrieve_possible_other_answers(sentenceID):
-    possible_answers = []
-    data = import_lexicon()
     data = data.loc[data['sentenceID'] == sentenceID]
     for i, row in data.iterrows():
         if row['lang'] == 'en':
@@ -63,12 +51,32 @@ def check_answers(given_answer, quiz_df, question_number):
     quiz_df = quiz_df.reset_index()
 
     sentenceID = quiz_df._get_value(question_number, 'sentenceID')
-    possible_answers = retrieve_possible_other_answers(sentenceID)
+    possible_answers = retrieve_all_correct_answers(sentenceID)
 
     if given_answer in possible_answers:
         return True
     else:
         return False
+
+
+def generate_answer_options(questionID):
+    multiple_choice_options = []
+
+    all_correct_answers = retrieve_all_correct_answers(questionID)
+    multiple_choice_options.append(all_correct_answers[0])
+
+    df = import_tatoeba()
+    three_random_numbers = random.choice(a=range(len(df)), size=3,
+                                replace=False)
+    incorrect_answers = []
+    for i, row in df.iloc[three_random_numbers].iterrows():
+        if row['lang'] == 'en':
+            incorrect_answers.append(row['sentence_en'])
+        elif row['lang'] == 'nl':
+            incorrect_answers.append(row['sentence_nl'])
+
+    #multiple_choice_options.append(incorrect_answers.values)
+    return all_correct_answers[0], incorrect_answers
 
 
 # Write updates to the dataframe
