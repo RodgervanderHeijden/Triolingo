@@ -14,6 +14,18 @@ def import_tatoeba():
     return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
+def retrieve_possible_answers(sentenceID):
+    possible_answers = []
+    data = import_tatoeba()
+    data = data.loc[data['sentenceID'] == sentenceID]
+    for i, row in data.iterrows():
+        if row['lang'] == 'en':
+            possible_answers.append(row['sentence_en'])
+        elif row['lang'] == 'nl':
+            possible_answers.append(row['sentence_nl'])
+    return possible_answers
+
+
 # Selecting what words are to be quizzed, based on the desired difficulty and quantity
 def select_quiz_words(difficulty, number_of_questions):
     if difficulty == 'mastery':
@@ -29,6 +41,8 @@ def select_quiz_words(difficulty, number_of_questions):
                                 replace=False, p=cum_weights)
 
     print(choice_list)
+    # sentence_IDs = df.iloc[choice_list]['sentenceID']
+    # print(sentence_IDs)
     chosen_words_df = df.iloc[choice_list]
     print(chosen_words_df)
     return chosen_words_df
@@ -39,23 +53,34 @@ def check_answers(given_answer, quiz_df, question_number):
     # reset_index solved this, but is messy.
     quiz_df = quiz_df.reset_index()
 
-    print(quiz_df._get_value(question_number, 'sentence_nl'), quiz_df._get_value(question_number, 'sentence_en'))
+    sentenceID = quiz_df._get_value(question_number, 'sentenceID')
+    possible_answers = retrieve_possible_answers(sentenceID)
+
+    if given_answer in possible_answers:
+        print(given_answer, )
+        print("Correct answer!")
+        return True
+    else:
+        print(given_answer, )
+        print("Incorrect answer!")
+        return False
+
     # print(quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
     # print(given_answer, type([quiz_df._get_value(question_number, 'Dutch')]), type(quiz_df._get_value(question_number, 'English')))
     # print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
     # print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
 
-    try:
-        if (given_answer in quiz_df._get_value(question_number, 'Dutch')) or (given_answer in quiz_df._get_value(question_number, 'English')):
-            print(given_answer,)
-            print("Correct answer!")
-            return True
-        else:
-            print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
-            print("Incorrect answer!")
-            return False
-    except:
-        return False
+    # try:
+    #     if (given_answer in quiz_df._get_value(question_number, 'Dutch')) or (given_answer in quiz_df._get_value(question_number, 'English')):
+    #         print(given_answer,)
+    #         print("Correct answer!")
+    #         return True
+    #     else:
+    #         print(given_answer, quiz_df._get_value(question_number, 'Dutch'), quiz_df._get_value(question_number, 'English'))
+    #         print("Incorrect answer!")
+    #         return False
+    # except:
+    #     return False
 
 
 # Write updates to the dataframe

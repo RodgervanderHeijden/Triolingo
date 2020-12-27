@@ -49,6 +49,8 @@ def quiz_page(difficulty="mastery", no_questions=10):
                                    quiz_df=quiz_df_html, current_word=current_word)
 
         else:
+            sentenceID = quiz_df.iloc[current_question[0]]['sentenceID']
+
             is_correct = check_answers(answer_bool, quiz_df, current_question[0])
             # Update index
             current_question[0] = current_question[0] + 1
