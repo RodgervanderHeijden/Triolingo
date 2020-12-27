@@ -17,6 +17,18 @@
                         <p>You have opted for <i>{{ difficulty }}</i>.</p>
                     </div>
                 </div>
+
+
+                <div class="card">
+                    <div class="card-body">
+                        <h1>Tabel met data:</h1>
+
+                        {% for table in quiz_df %}
+                            {{ table|safe }}
+                        {% endfor %}
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
