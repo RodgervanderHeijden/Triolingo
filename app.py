@@ -44,7 +44,8 @@ def quiz_page(difficulty="mastery", no_questions=10, mode='Sentence'):
 
             quiz_df_html = [quiz_df.to_html(classes='data')]
             return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                   quiz_df=quiz_df_html, mode=mode, current_word=current_word)
+                                   quiz_df=quiz_df_html,
+                                   mode=mode, current_word=current_word)
 
         else:
             sentenceID = quiz_df.iloc[current_question[0]]['sentenceID']

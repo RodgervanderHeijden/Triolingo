@@ -42,3 +42,19 @@ body {
 .rightAlign {
     float: right;
 }
+
+table {
+    width: 100%;
+}
+
+thead {
+    text-align: right;
+}
+
+tbody {
+    text-align: right;
+}
+
+td {
+    padding-right: 5px;
+}
