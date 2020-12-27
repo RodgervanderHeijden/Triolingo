@@ -9,13 +9,15 @@ current_question_no = [0]
 
 @app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
+    '''
+        A page to confirm the selected quiz settings (from form of settings page).
+        Initially required to solve the issue of having two forms in the quiz page,
+        though it might be mitigated by using globals, url args and even sessions.
+        For now, it works and it's fine.
+        Current_question_no has to be set to 0, otherwise the second quiz does not work.
+    '''
     questions = int(request.form.get("amount"))
-    if request.form.get("difficulty") == "Easy":
-        difficulty = "easy"
-    elif request.form.get("difficulty") == "Medium":
-        difficulty = "medium"
-    elif request.form.get("difficulty") == "Difficult":
-        difficulty = "difficult"
+    difficulty = request.form.get('difficulty')
     mode = request.form.get("mode")
     global current_question_no
     current_question_no = [0]
@@ -24,7 +26,14 @@ def confirm_quiz_settings():
 
 
 @app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
-def quiz_page(difficulty="Easy", no_questions=10, mode='Sentence'):
+def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
+    '''
+        The beefy page where the quiz actually occurs. Takes in three args in URL.
+        While the number of questions hasn't been reached, it goes in the loop, otherwise redirect.
+        The loop has two conditions; the first one is when the form does not (yet) have a text,
+        i.e. no answer has been given yet, i.e. the user arrives from quiz_setting_confirmation.
+        The quiz subdf get decided there and written to global.
+    '''
     # Get from URL
     no_questions=int(no_questions)
     answer_bool = request.form.get('text', None)
@@ -40,8 +49,7 @@ def quiz_page(difficulty="Easy", no_questions=10, mode='Sentence'):
             current_questionID = quiz_df.iloc[current_question_no[0]]['sentenceID']
 
             quiz_df_html = [quiz_df.to_html(classes='data')]
-            # MultiC means multiple choice (for now)
-            # Open for open questions
+
             if mode == 'multiple choice':
                 correct_answer, incorrect_answers = generate_answer_options(current_questionID)
                 answer_options = [x for x in incorrect_answers]
@@ -68,15 +76,12 @@ def quiz_page(difficulty="Easy", no_questions=10, mode='Sentence'):
             # If correct: quiz the next question
             if is_correct:
                 print("Correct")
-
             # If incorrect, quiz the same question.
             else:
                 print("Incorrect!")
 
             quiz_df_html = [quiz_df.to_html(classes='data')]
 
-            # MultiC means multiple choice
-            # Open for open questions
             if mode == 'multiple choice':
                 correct_answer, incorrect_answers = generate_answer_options(current_questionID)
                 answer_options = [x for x in incorrect_answers]
@@ -92,9 +97,12 @@ def quiz_page(difficulty="Easy", no_questions=10, mode='Sentence'):
     return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions, mode=mode))
 
 
-# TODO: receive quiz data as argument
 @app.route("/after_quiz/<difficulty>/<no_questions>/<mode>/", methods=["GET", "POST"])
 def show_quiz_data(difficulty, no_questions, mode):
+    '''
+        With args in URL and global quiz_df shows the quizzed words and settings.
+        Probably will be reworked to work with sessions, and requires some backend functionality still.
+    '''
 
     # TODO
     def update_lexicon():
@@ -107,18 +115,28 @@ def show_quiz_data(difficulty, no_questions, mode):
 
 @app.route("/settings", methods=["GET"])
 def select_settings():
+    '''
+        Quite standard page to select settings.
+        Potential to add a post-method, delete the action on the form,
+        and an if-statement here with redirect to confirm_settings, no prio though.
+        Some css shabam is desired, yet not necessary.
+    '''
     return render_template("select_quiz_settings.html")
 
 
-# Standard homepage.
 @app.route("/")
 def index():
+    '''
+        Homepage. Can use some visual shabam, but works.
+    '''
     return render_template("homepage.html")
 
 
-# Standard about page.
 @app.route("/about")
 def about():
+    '''
+        Currently (mostly) populated with lorem ipsum, low prio to actually write about the project (for now).
+    '''
     return render_template("about_triolingo.html")
 
 

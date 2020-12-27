@@ -7,15 +7,24 @@ from numpy import random, sum
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
+    '''
+        Imports and returns the own data (open questions)
+    '''
 #    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
     return pd.read_csv("./backend/data/my_data/clean_lexicon.csv", sep=';')
 
 
 def import_tatoeba():
+    '''
+        Imports and returns the tatoeba data (multiple choice)
+    '''
     return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
 def retrieve_all_correct_answers(sentenceID):
+    '''
+        Given a sentence ID, it retrieves and returns all other correct answers.
+    '''
     possible_answers = []
     data = import_tatoeba()
     data = data.loc[data['sentenceID'] == sentenceID]
@@ -27,8 +36,13 @@ def retrieve_all_correct_answers(sentenceID):
     return possible_answers
 
 
-# Selecting what words are to be quizzed, based on the desired difficulty and quantity
 def select_quiz_words(difficulty, number_of_questions, mode):
+    '''
+        Creates and returns a small df of size (number_of_questions).
+        Mode currently is used as proxy for sentence/word questions,
+        will be changed in the future. Difficulty is not taken into
+        account yet, also future work (see issue #14).
+    '''
     if mode == 'multiple choice':
         df = import_tatoeba()
     elif mode == 'open':
@@ -46,10 +60,13 @@ def select_quiz_words(difficulty, number_of_questions, mode):
 
 
 def check_answers(given_answer, quiz_df, question_number):
-    # _get_value uses index of total dataframe, while question_number is from 0 to (max_no_questions)
-    # reset_index solved this, but is messy.
-    quiz_df = quiz_df.reset_index()
-
+    '''
+        Given answer and the sentenceID, check whether it is correct.
+        First use question_number (as index of quiz_df) to find matching
+        sentenceID, then call retrieve_all_correct_answers for that ID.
+        If the provided answer is in the list of possible answers, it is
+        correct (True), otherwise not (False). Return result.
+    '''
     sentenceID = quiz_df._get_value(question_number, 'sentenceID')
     possible_answers = retrieve_all_correct_answers(sentenceID)
 
@@ -60,6 +77,14 @@ def check_answers(given_answer, quiz_df, question_number):
 
 
 def generate_answer_options(questionID):
+    '''
+        In case of multiple choice questions, three incorrect options have to be selected.
+        With just questionID, the first answer of all_correct_answers is taken (fewer args passed),
+        and three random numbers are chosen for the incorrect options. Theoretically, if a question
+        has multiple correct translations in the database, multiple options could be correct. However,
+        as evaluation takes this into account, it will also be evaluated correctly, and no tricky
+        edge case mitigation should be done to combat this unlikely event.
+    '''
     multiple_choice_options = []
 
     all_correct_answers = retrieve_all_correct_answers(questionID)
@@ -79,6 +104,9 @@ def generate_answer_options(questionID):
     return all_correct_answers[0], incorrect_answers
 
 
-# Write updates to the dataframe
 def update_dataframe():
+    '''
+        Stores the quiz (meta)data to the appropriate locations.
+        To be implemented.
+    '''
     pass
