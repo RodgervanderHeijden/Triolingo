@@ -1,11 +1,8 @@
-from flask import Flask, render_template, request, url_for, redirect, flash
+from flask import Flask, render_template, request, url_for, redirect
 from helper_functions import select_quiz_words, check_answers, generate_answer_options
-import random
 
 app = Flask(__name__)
-app.secret_key = 'secret_key'
-
-current_question_no = [0]
+current_question_no = 0
 
 @app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
@@ -20,7 +17,7 @@ def confirm_quiz_settings():
     difficulty = request.form.get('difficulty')
     mode = request.form.get("mode")
     global current_question_no
-    current_question_no = [0]
+    current_question_no = 0
     return render_template("quiz_confirmation.html", difficulty=difficulty,
                            questions=questions, mode=mode)
 
@@ -41,14 +38,15 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
 
     # Upon first visit of the route, no answer has yet been given
     # Here a to be quizzed sub df gets selected and returned
-    while current_question_no[0] < no_questions - 1:
+    global current_question_no
+    while current_question_no < no_questions:
 
         if (request.method == "POST") & (request.referrer[-18:] == '/quiz_confirmation'):
 
             global quiz_df
             quiz_df = select_quiz_words(difficulty, no_questions, mode)
-            current_question = quiz_df.iloc[current_question_no[0]]['sentence_pl']
-            sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
+            current_question = quiz_df.iloc[current_question_no]['sentence_pl']
+            sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
 
             quiz_df_html = [quiz_df.to_html(classes='data')]
 
@@ -72,7 +70,7 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             if (given_answer is not None):
                 url = request.referrer
 
-                sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
+                sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
                 if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
                     # Is answer was given as letter, convert to numerical
                     if given_answer.lower() == 'a':
@@ -95,32 +93,31 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                     is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
 
-                current_question = quiz_df.iloc[current_question_no[0]]['sentence_pl']
+                current_question = quiz_df.iloc[current_question_no]['sentence_pl']
                 quiz_df_html = [quiz_df.to_html(classes='data')]
 
                 # If correct: quiz the next question
                 if is_correct:
-                    print("Correct")
                     # Update index and generate a new sentenceID
-                    previous_question_no = current_question_no[0]
-                    current_question_no[0] = current_question_no[0] + 1
-                    sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
+                    previous_question_no = current_question_no
+                    current_question_no = current_question_no + 1
 
                 # If incorrect, quiz the same question.
                 else:
                     # Don't update anything
-                    print("Incorrect!")
-                    previous_question_no = current_question_no[0]
+                    previous_question_no = current_question_no
 
                 previous_question = quiz_df.iloc[previous_question_no]['sentence_pl']
                 return render_template("answer_feedback.html", given_answer=given_answer,
-                                           current_question=previous_question, url=url)
+                                       current_question=previous_question, url=url,
+                                       is_correct=is_correct)
 
 
             elif (from_feedback_page is not None) & (given_answer is None):
                 quiz_df_html = [quiz_df.to_html(classes='data')]
-                current_question = quiz_df.iloc[current_question_no[0]]['sentence_pl']
+                current_question = quiz_df.iloc[current_question_no]['sentence_pl']
                 if mode == 'multiple choice':
+                    sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
                     answer_options, index = generate_answer_options(sentenceID)
 
                     return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,

@@ -45,6 +45,7 @@ body {
 
 table {
     width: 100%;
+    border: none;
 }
 
 thead {
@@ -55,6 +56,6 @@ tbody {
     text-align: right;
 }
 
-td {
-    padding-right: 5px;
+h4 {
+    text-align: center;
 }

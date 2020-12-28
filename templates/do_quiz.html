@@ -40,9 +40,9 @@
                         {% if mode=='Words' %}
                             <p>What does <i>{{ current_word }}</i> mean?</p>
                         {% else %}
-                            <p>What does this sentence mean?</p>
-                            <p><i>{{ current_word }}</i></p>
-                            <p>Potential answers:</p>
+                            <p class="text-muted">What does this sentence mean?</p>
+                            <h4><i>{{ current_word }}</i></h4>
+                            <p class="text-muted">Potential answers:</p>
                             <ol>
                             {% for answer_option in answer_options %}
                                 <li>{{ answer_option }}</li>
@@ -61,23 +61,6 @@
                                 <button type="submit" name="submit" class="form__input btn btn-primary">Enter</button>
                             </div>
                         </form>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <h1>Selected settings</h1>
-
-                        <p>You have opted for <i>{{ no_questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <h1>The data in the current quiz (for testing)</h1>
-                        {% for table in quiz_df %}
-                            {{ table|safe }}
-                        {% endfor %}
                     </div>
                 </div>
             </div>
