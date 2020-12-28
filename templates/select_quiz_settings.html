@@ -15,7 +15,7 @@
                         <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
                             <div class="form__fieldset">
                                 <label for="number" class="form__label">How many questions do you want:</label>
-                                <input autofocus type="number" name="amount" id="amount" min="3" max="25" class="form__input" />
+                                <input autofocus type="number" name="amount" id="amount" min="3" max="25" class="form__input" required />
                             </div>
 
                             <div class="form__fieldset">
@@ -30,8 +30,8 @@
                             <div class="form__fieldset">
                                 <label for="mode" class="form__label">What mode do you want?</label>
                                 <select name="mode" id="mode" class="form__input form__select">
-                                    <option value="open">Open questions (words)</option>
                                     <option value="multiple choice">Multiple choice (sentences)</option>
+                                    <option value="open">Open questions (words)</option>
                                 </select>
                             </div>
 
