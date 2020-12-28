@@ -3,7 +3,6 @@ import csv
 import codecs
 import numpy as np
 
-# columns=('sentenceID', 'sentence_pl', 'sentence_en', 'sentence_nl', 'has_words'),
 df_sentences = pd.DataFrame( )
 
 
@@ -61,5 +60,6 @@ def create_tatoeba_lexicon():
     df_pl_en = import_and_write_english(df_pl_match)
     df_pl_en_nl = import_and_write_dutch(df_pl_en)
     clean_and_store_results(df_pl_en_nl)
+
 
 create_tatoeba_lexicon()
