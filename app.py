@@ -37,11 +37,13 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     # Get from URL
     no_questions = int(no_questions)
     given_answer = request.form.get('text', None)
+    from_feedback_page = request.form.get('from_feedback_page', None)
 
     # Upon first visit of the route, no answer has yet been given
     # Here a to be quizzed sub df gets selected and returned
     while current_question_no[0] < no_questions - 1:
-        if (request.method == "POST") & (given_answer is None):
+
+        if (request.method == "POST") & (request.referrer[-18:] == '/quiz_confirmation'):
 
             global quiz_df
             quiz_df = select_quiz_words(difficulty, no_questions, mode)
@@ -61,63 +63,73 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question)
 
         else:
-            sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
-            if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
-                # Is answer was given as letter, convert to numerical
-                if given_answer.lower() == 'a':
-                    given_answer = 1
-                elif given_answer.lower() == 'b':
-                    given_answer = 2
-                elif given_answer.lower() == 'c':
-                    given_answer = 3
-                elif given_answer.lower() == 'd':
-                    given_answer = 4
-                # To convert to correct index, subtract one. This works both for the human-provided numbers
-                # and the just mapped numbers.
-                given_answer = int(given_answer)
-                given_answer -= 1
-                if index == given_answer:
-                    is_correct = True
-                else:
-                    is_correct = False
-            else:
-                is_correct = check_answers(given_answer, quiz_df, sentenceID)
+            # Two options exist:
+            # A. the previous page is the quiz, and thus the request holds an answer
+            # B. the previous page is the screen after an answer has been given, and thus holds no new answer.
 
-            # If correct: quiz the next question
-            if is_correct:
-                print("Correct")
-                # Update index and generate a new sentenceID
-                current_question_no[0] = current_question_no[0] + 1
+
+            # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
+            if (given_answer is not None):
+                url = request.referrer
+
                 sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
-            # If incorrect, quiz the same question.
-            else:
-                # Don't update anything
-                print("Incorrect!")
+                if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
+                    # Is answer was given as letter, convert to numerical
+                    if given_answer.lower() == 'a':
+                        given_answer = 1
+                    elif given_answer.lower() == 'b':
+                        given_answer = 2
+                    elif given_answer.lower() == 'c':
+                        given_answer = 3
+                    elif given_answer.lower() == 'd':
+                        given_answer = 4
+                    # To convert to correct index, subtract one. This works both for the human-provided numbers
+                    # and the just mapped numbers.
+                    given_answer = int(given_answer)
+                    given_answer -= 1
+                    if index == given_answer:
+                        is_correct = True
+                    else:
+                        is_correct = False
+                else:
+                    is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
-            current_question = quiz_df.iloc[current_question_no[0]]['sentence_pl']
-            quiz_df_html = [quiz_df.to_html(classes='data')]
 
-            if mode == 'multiple choice':
+                current_question = quiz_df.iloc[current_question_no[0]]['sentence_pl']
+                quiz_df_html = [quiz_df.to_html(classes='data')]
 
-                flash(given_answer, 'given_answer')
-                # Current question actually already refers to the new question if the previous one was correct
-                # However, the conclusion is that flashing is not the way to go, and I want to keep the progress
-                # Thus I quit here, but do push it.
-                flash(current_question, 'current_question')
-                flash(is_correct, 'is_correct')
-                answer_options, index = generate_answer_options(sentenceID)
+                # If correct: quiz the next question
+                if is_correct:
+                    print("Correct")
+                    # Update index and generate a new sentenceID
+                    previous_question_no = current_question_no[0]
+                    current_question_no[0] = current_question_no[0] + 1
+                    sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
 
-                return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                       quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                       answer_options=answer_options, answer=given_answer, )
-            elif mode == 'open':
-                flash(given_answer, 'given_answer')
-                # See line 103.
-                flash(current_question, 'current_question')
-                flash(is_correct, 'is_correct')
-                return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                       quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                       answer=given_answer, )
+                # If incorrect, quiz the same question.
+                else:
+                    # Don't update anything
+                    print("Incorrect!")
+                    previous_question_no = current_question_no[0]
+
+                previous_question = quiz_df.iloc[previous_question_no]['sentence_pl']
+                return render_template("answer_feedback.html", given_answer=given_answer,
+                                           current_question=previous_question, url=url)
+
+
+            elif (from_feedback_page is not None) & (given_answer is None):
+                quiz_df_html = [quiz_df.to_html(classes='data')]
+                current_question = quiz_df.iloc[current_question_no[0]]['sentence_pl']
+                if mode == 'multiple choice':
+                    answer_options, index = generate_answer_options(sentenceID)
+
+                    return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
+                                           quiz_df=quiz_df_html, mode=mode, current_word=current_question,
+                                           answer_options=answer_options, answer=given_answer, )
+                elif mode == 'open':
+                    return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
+                                           quiz_df=quiz_df_html, mode=mode, current_word=current_question,
+                                           answer=given_answer, )
 
     return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions, mode=mode))
 

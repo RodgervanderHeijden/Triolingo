@@ -1,0 +1,31 @@
+{% extends "template.html" %}
+
+{% block title %}Triolingo - about your answer{% endblock %}
+
+
+{% block main %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h1>About your most recent quiz</h1>
+                        <p>Lorem ipsum.</p>
+
+                        <p>You have opted for <i>{{ given_answer }}, {{ current_question }}, </i> questions.</p>
+
+
+                        <form method="POST" action="{{ url }}" >
+                            <div class="form__fieldset">
+
+                                <label class="form__label"></label>
+                                <button autofocus type="submit" name="from_feedback_page" class="form__input btn btn-primary rightAlign">Start</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
