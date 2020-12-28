@@ -6,6 +6,34 @@
     <div class="container">
         <div class="row">
             <div class="col">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% with is_correct = get_flashed_messages(category_filter=["is_correct"]) %}
+                            {% with given_answer = get_flashed_messages(category_filter=["given_answer"]) %}
+                                {% with current_question = get_flashed_messages(category_filter=["current_question"]) %}
+                                    {% if is_correct[0] == True %}
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <p>You were completely right!</p>
+                                                <p>You answered {{ given_answer }} as answer to {{ current_question }}</p>
+
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <p>Incorrect</p>
+                                                <p>You answered {{ given_answer }} as answer to {{ current_question }}</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endif %}
+                {% endwith %}
+
+
                 <div class="card">
                     <div class="card-body">
                         <h1>Your quiz</h1>

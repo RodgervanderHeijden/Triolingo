@@ -10,6 +10,19 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <h3>{{ message }}</h3>
+                                    <p>You have opted for <i>{{ no_questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
+
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
                         <h1>About your most recent quiz</h1>
                         <p>Lorem ipsum.</p>
 

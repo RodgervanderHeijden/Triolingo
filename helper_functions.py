@@ -12,6 +12,8 @@ def import_lexicon():
         Imports and returns the own data (open questions)
     """
 #    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
+    global lexicon
+    lexicon = True
     return pd.read_csv("./backend/data/my_data/clean_lexicon.csv", sep=';')
 
 
@@ -19,6 +21,8 @@ def import_tatoeba():
     """
         Imports and returns the tatoeba data (multiple choice)
     """
+    global lexicon
+    lexicon = False
     return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
@@ -27,7 +31,10 @@ def retrieve_all_correct_answers(sentenceID):
         Given a sentence ID, it retrieves and returns all other correct answers.
     """
     possible_answers = []
-    data = import_tatoeba()
+    if lexicon == True:
+        data = import_lexicon()
+    elif lexicon == False:
+        data = import_tatoeba()
     data = data.loc[data['sentenceID'] == sentenceID]
     for i, row in data.iterrows():
         if row['lang'] == 'en':

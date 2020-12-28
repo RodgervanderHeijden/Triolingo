@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, flash
 from helper_functions import select_quiz_words, check_answers, generate_answer_options
 import random
 
 app = Flask(__name__)
+app.secret_key = 'secret_key'
 
 current_question_no = [0]
 
@@ -52,7 +53,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             if mode == 'multiple choice':
                 global answer_options, index
                 answer_options, index = generate_answer_options(sentenceID)
-
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question,
                                        answer_options=answer_options)
@@ -63,7 +63,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
         else:
             sentenceID = quiz_df.iloc[current_question_no[0]]['sentenceID']
             if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
-                print(answer_options, index)
                 # Is answer was given as letter, convert to numerical
                 if given_answer.lower() == 'a':
                     given_answer = 1
@@ -81,7 +80,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                     is_correct = True
                 else:
                     is_correct = False
-#                is_correct = check_answers(converted_answer, quiz_df, sentenceID)
             else:
                 is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
@@ -100,12 +98,23 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             quiz_df_html = [quiz_df.to_html(classes='data')]
 
             if mode == 'multiple choice':
+
+                flash(given_answer, 'given_answer')
+                # Current question actually already refers to the new question if the previous one was correct
+                # However, the conclusion is that flashing is not the way to go, and I want to keep the progress
+                # Thus I quit here, but do push it.
+                flash(current_question, 'current_question')
+                flash(is_correct, 'is_correct')
                 answer_options, index = generate_answer_options(sentenceID)
 
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question,
                                        answer_options=answer_options, answer=given_answer, )
             elif mode == 'open':
+                flash(given_answer, 'given_answer')
+                # See line 103.
+                flash(current_question, 'current_question')
+                flash(is_correct, 'is_correct')
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question,
                                        answer=given_answer, )
