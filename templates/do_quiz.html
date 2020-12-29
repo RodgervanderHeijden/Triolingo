@@ -12,7 +12,7 @@
                             {% with given_answer = get_flashed_messages(category_filter=["given_answer"]) %}
                                 {% with current_question = get_flashed_messages(category_filter=["current_question"]) %}
                                     {% if is_correct[0] == True %}
-                                        <div class="card">
+                                        <div class="card shadow mb-4">
                                             <div class="card-body">
                                                 <p>You were completely right!</p>
                                                 <p>You answered {{ given_answer }} as answer to {{ current_question }}</p>
@@ -20,7 +20,7 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        <div class="card">
+                                        <div class="card shadow mb-4">
                                             <div class="card-body">
                                                 <p>Incorrect</p>
                                                 <p>You answered {{ given_answer }} as answer to {{ current_question }}</p>
@@ -34,7 +34,7 @@
                 {% endwith %}
 
 
-                <div class="card">
+                <div class="card shadow mb-4">
                     <div class="card-body">
                         <h1>Your quiz</h1>
                         {% if mode=='Words' %}
@@ -58,7 +58,8 @@
                                 <input autofocus type="text" name="text" class="form__input" />
 
                                 <label class="form__label"></label>
-                                <button type="submit" name="submit" class="form__input btn btn-primary">Enter</button>
+                                <button type="submit" name="submit"
+                                        class="border btn-sm btn-outline-primary" href="/about">Enter</button>
                             </div>
                         </form>
                     </div>

@@ -6,17 +6,82 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <div class="card">
+                <div class="card shadow mb-4">
                     <div class="card-body">
-                        <h1>Welcome to Triolingo!</h1>
-                        <ul>
-                            <li><a href='./settings'>Start a quiz</a></li>
+                        <h1>Welcome to Triolingo</h1>
+                        <p class="text-muted">A tailored web app for language learning</p>
 
 
-                            <li><a href='./about'>About Triolingo</a></li>
-                        </ul>
+                        <p>
+                            Triolingo takes a very tailored approach in presenting you questions. For every words in
+                            the Polish language a score of your mastery is calculated. Using these masteries your
+                            understanding of sentences is calculated, with which the most appropriate for you can
+                            be selected. So, no more trivial sentences about cats eating bread. Due to the
+                            large amount of sentences available even semi-advanced can learn new words in context!
+                        </p>
+
+                        <p>
+                            All data originates in part of a privately collected lexicon (consisting of ~500 manually
+                            selected words with translations); in part of the wonderful dataset of
+                            <a href="https://tatoeba.org/">Tatoeba</a>, released under a
+                            <a href="https://creativecommons.org/licenses/by/2.0/fr/">CC-BY 2.0 FR license</a>; and
+                            (hopefully soon) in part of the massive <a href="http://clip.ipipan.waw.pl/PL196x">NKJP
+                            dataset</a>, which is released under a
+                            <a href="http://clip.ipipan.waw.pl/PL196x?action=AttachFile&do=view&target=gpl.txt">GNU license</a>.
+                        </p>
+
+
                     </div>
                 </div>
+
+
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h1>Personal quizzing</h1>
+                        <p class="text-muted">Start your quiz</p>
+
+                        <p>
+                            We could talk hours about what features Triolingo sports, but the primary function of course
+                            is to improve your language learning (or actually: mine). So select the number of questions
+                            you want, choose what mode and difficulty you desire and give it a spin!
+                        </p>
+
+                        <p class="text-muted">
+                            Note: for this web demo no progress is stored and no actual personification is present.
+                        </p>
+
+                        <a autofocus class="border btn-lg btn-outline-primary rightAlign" href="/settings">Start your quiz</a>
+                    </div>
+                </div>
+
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h1>About</h1>
+                        <p class="text-muted">
+                            Some more details about the motivation
+                        </p>
+                        <p>
+                            Triolingo is a quick side project of Rodger van der Heijden with a combined purpose
+                            of learning Flask and learning Polish. He had grown frustrated with the restrictions
+                            of comparable apps as Duolingo and Clozemaster, and grown curious to the possibilities
+                            of Flask. This website merely exists as a (functional) demo to showcase his efforts,
+                            but is not intended for actual use. In case of interest for use, you can clone the
+                            entire project from <a href="https://github.com/RodgervanderHeijden/Triolingo">Github</a>,
+                            or you can contact Rodger via <a href="mailto:rodgervanderheijden@gmail.com">mail</a>.
+                        </p>
+
+                        <p>
+                            More information about the underlying motivation, the data preparation, and design decisions
+                            along the way can be found on the <a href="/about">about page</a>.
+                        </p>
+
+                        <a autofocus class="border btn-lg btn-outline-primary rightAlign" href="/about">Discover more about Triolingo</a>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>

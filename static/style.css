@@ -9,34 +9,27 @@ body {
 }
 
 .form__fieldset {
+    border-color: #670c3f;
+    border-radius: 3px;
     padding: 4px 2px;
 }
 
-.form__fieldset:not(:last-of-type) {
-    border-bottom: 10px solid rgba(0,0,0,0.1);
-}
-
 .form__input {
+    border-color: #670c3f;
+    border-radius: 3px;
     font-size: 1rem;
 }
 
 .form__select {
+    border-color: #670c3f;
+    border-radius: 3px;
     padding: 4px 2px;
 }
 
 .form__label {
+    border-color: #670c3f;
+    border-radius: 3px;
     margin-right: 20px;
-}
-
-.form__submit {
-    padding: 8px 16px;
-    border-radius: 4px;
-    float: right;
-}
-
-.form__submit:hover {
-    background-color: #1c2023;
-    color: white;
 }
 
 .rightAlign {
@@ -58,4 +51,67 @@ tbody {
 
 h4 {
     text-align: center;
+    color: #670c3f;
+}
+
+body {
+    /*
+    c2e8fb is a tad more towards babyblue, but hue could increase i think
+    #ADA1E3 looks quite nice, its a decently purple color, not very light though
+    1b3b6f is donkerblauw, heeft wel wat
+    270722 is echt flink paars
+    370722
+
+    */
+    background-color: #fff9f9;
+}
+
+h1 {
+    color: #670c3f !important;
+}
+
+.brand-icon {
+    font-size: 2rem;
+    margin-right: 2.5rem !important;
+}
+
+
+.btn-outline-primary {
+    color: #670c3f !important;
+    border-color: #670c3f !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #670c3f !important;
+    border-color: #670c3f !important;
+    color: white !important;
+}
+
+a {
+    color: #670c3f !important;
+    text-decoration: none !important;
+    border-color: #670c3f !important;
+    border-width: 3px !important;
+}
+
+a:hover {
+    color: #670c3f !important;
+}
+
+.btn-lg {
+    outline: 1px !important;
+}
+
+.inherit-width {
+    width: inherit !important;
+}
+
+#last-item {
+    width: 500px !important;
+    text-align: right !important;
+    float: right !important;
+}
+
+.house-style {
+    color: #670c3f !important;
 }
