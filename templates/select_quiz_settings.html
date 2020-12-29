@@ -36,78 +36,7 @@
                             </div>
 
                             <div class="form__fieldset">
-                                <button type="submit" class="border btn-lg btn-outline-primary rightAlign" href="/about">Get started</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-
-
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <h1>Select the desired settings for your quiz!</h1>
-
-                        <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
-                            <div class="form__fieldset">
-                                <label for="number" class="form__label">How many questions do you want:</label>
-                                <input autofocus type="number" name="amount" id="amount" min="3" max="25" class="form__input" required />
-                            </div>
-
-                            <div class="form__fieldset">
-                                <label for="difficulty" class="form__label">What difficulty do you want you quiz to be?</label>
-                                <select name="difficulty" id="difficulty" class="form__input form__select">
-                                    <option value="easy">Easy</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="difficult">Difficult</option>
-                                </select>
-                            </div>
-
-                            <div class="form__fieldset">
-                                <label for="mode" class="form__label">What mode do you want?</label>
-                                <select name="mode" id="mode" class="form__input form__select">
-                                    <option value="multiple choice">Multiple choice (sentences)</option>
-                                    <option value="open">Open questions (words)</option>
-                                </select>
-                            </div>
-
-                            <div class="form__fieldset">
-                                <button type="submit" class="btn btn-primary form__submit form__input ">Enter</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <h1>Select the desired settings for your quiz!</h1>
-
-                        <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
-                            <div class="form__fieldset">
-                                <label for="number" class="form__label">How many questions do you want:</label>
-                                <input autofocus type="number" name="amount" id="amount" min="3" max="25" class="form__input" required />
-                            </div>
-
-                            <div class="form__fieldset">
-                                <label for="difficulty" class="form__label">What difficulty do you want you quiz to be?</label>
-                                <select name="difficulty" id="difficulty" class="form__input form__select">
-                                    <option value="easy">Easy</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="difficult">Difficult</option>
-                                </select>
-                            </div>
-
-                            <div class="form__fieldset">
-                                <label for="mode" class="form__label">What mode do you want?</label>
-                                <select name="mode" id="mode" class="form__input form__select">
-                                    <option value="multiple choice">Multiple choice (sentences)</option>
-                                    <option value="open">Open questions (words)</option>
-                                </select>
-                            </div>
-
-                            <div class="form__fieldset">
-                                <button type="submit" class="btn btn-primary form__submit form__input ">Enter</button>
+                                <button type="submit" class="border btn-lg btn-outline-primary rightAlign">Get started</button>
                             </div>
                         </form>
                     </div>

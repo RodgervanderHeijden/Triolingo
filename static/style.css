@@ -115,3 +115,19 @@ a:hover {
 .house-style {
     color: #670c3f !important;
 }
+
+.row .col-* {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+.multiple-choice {
+    width: 100%;
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+}
+
+.width-40 {
+    width: 40%;
+}

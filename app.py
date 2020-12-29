@@ -51,11 +51,15 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             quiz_df_html = [quiz_df.to_html(classes='data')]
 
             if mode == 'multiple choice':
+
                 global answer_options, index
                 answer_options, index = generate_answer_options(sentenceID)
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                       answer_options=answer_options)
+                                       answer_option_1=answer_options[0],
+                                       answer_option_2=answer_options[1],
+                                       answer_option_3=answer_options[2],
+                                       answer_option_4=answer_options[3],)
             elif mode == 'open':
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question)
@@ -120,9 +124,14 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                     sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
                     answer_options, index = generate_answer_options(sentenceID)
 
+                    print(answer_options[0], answer_options[1], answer_options[2], answer_options[3])
+
                     return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                            quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                           answer_options=answer_options, answer=given_answer, )
+                                           answer=given_answer,
+                                           answer_options=answer_options,
+                                           answer_option_1=answer_options[0], answer_option_2=answer_options[1],
+                                           answer_option_3=answer_options[2], answer_option_4=answer_options[3], )
                 elif mode == 'open':
                     return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                            quiz_df=quiz_df_html, mode=mode, current_word=current_question,

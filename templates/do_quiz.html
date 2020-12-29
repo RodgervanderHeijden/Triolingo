@@ -43,23 +43,40 @@
                             <p class="text-muted">What does this sentence mean?</p>
                             <h4><i>{{ current_word }}</i></h4>
                             <p class="text-muted">Potential answers:</p>
-                            <ol>
-                            {% for answer_option in answer_options %}
-                                <li>{{ answer_option }}</li>
-                            {% endfor %}
-                            </ol>
+
+                            <form method="POST">
+                                <div class="row justify-content-center" id="special-row">
+                                    <div class="btn-group col-xs-12 col-sm-4 col-sm-offset-2 width-40" role="group">
+                                        <button type="submit" class="border btn-lg btn-outline-primary multiple-choice"
+                                                    value="{{ answer_option_1 }}" name="text">{{ answer_option_1 }}</button>
+                                    </div>
+                                    <div class="btn-group col-xs-12 col-sm-4 col-sm-offset-2 width-40" role="group">
+                                        <button type="submit" class="border btn-lg btn-outline-primary multiple-choice"
+                                                    value="{{ answer_option_2 }}" name="text">{{ answer_option_2 }}</button>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center" id="special-row">
+                                    <div class="btn-group col-xs-12 col-sm-4 col-sm-offset-2 width-40" role="group">
+                                        <button type="submit" class="border btn-lg btn-outline-primary multiple-choice"
+                                                    value="{{ answer_option_3 }}" name="text">{{ answer_option_3 }}</button>
+                                    </div>
+                                    <div class="btn-group col-xs-12 col-sm-4 col-sm-offset-2 width-40" role="group">
+                                        <button type="submit" class="border btn-lg btn-outline-primary multiple-choice"
+                                                    value="{{ answer_option_4 }}" name="text">{{ answer_option_4 }}</button>
+                                    </div>
+                                </div>
+                            </form>
                         {% endif %}
 
-                        <p>{{ answer_bool }}</p>
 
                         <form method="POST">
-                            <div class="form__fieldset">
+                            <div class="form__fieldset" style="text-align:center;">
                                 <label class="form__label">Your guess: </label>
                                 <input autofocus type="text" name="text" class="form__input" />
 
                                 <label class="form__label"></label>
                                 <button type="submit" name="submit"
-                                        class="border btn-sm btn-outline-primary" href="/about">Enter</button>
+                                        class="border btn-sm btn-outline-primary">Enter</button>
                             </div>
                         </form>
                     </div>
