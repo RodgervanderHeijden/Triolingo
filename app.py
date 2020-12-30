@@ -159,7 +159,7 @@ def select_settings():
 
 
 @app.route("/")
-def index():
+def homepage():
     """
         Homepage. Can use some visual shabam, but works.
     """

@@ -1,5 +1,5 @@
 import pandas as pd
-from numpy import random, sum
+import numpy as np
 import string
 
 
@@ -9,7 +9,7 @@ import string
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
     """ Imports and returns the own data (open questions) """
-#    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
+    #    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
     global lexicon
     lexicon = True
     return pd.read_csv("./backend/data/my_data/clean_lexicon.csv", sep=';')
@@ -53,8 +53,8 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     # TODO: create meaningful weights, based on mastery ánd difficulty
     # Weights: mastery of word
     weights = len(df) * [1]
-    cum_weights = weights/sum(weights)
-    choice_list = random.choice(a=range(len(df)), size=number_of_questions,
+    cum_weights = weights / np.sum(weights)
+    choice_list = np.random.choice(a=range(len(df)), size=number_of_questions,
                                 replace=False, p=cum_weights)
 
     chosen_words_df = df.iloc[choice_list]
@@ -102,10 +102,10 @@ def generate_answer_options(questionID):
     multiple_choice_options.append(all_correct_answers[0])
 
     df = import_tatoeba()
-    three_random_numbers = random.choice(a=range(len(df)), size=3,
-                                replace=False)
+    three_random_numbers = np.random.choice(a=range(len(df)), size=3,
+                                         replace=False)
     incorrect_answers = []
-    for i, row in df.iloc[three_random_numbers].iterrows():
+    for row in df.iloc[three_random_numbers].iterrows():
         if row['lang'] == 'en':
             incorrect_answers.append(row['sentence_en'])
         elif row['lang'] == 'nl':
@@ -113,11 +113,10 @@ def generate_answer_options(questionID):
 
     for incorrect_answer in incorrect_answers:
         multiple_choice_options.append(incorrect_answer)
-    random.shuffle(multiple_choice_options)
+    np.random.shuffle(multiple_choice_options)
     index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in all_correct_answers][0]
     return multiple_choice_options, index
 
 
 def update_dataframe():
     """ Stores the quiz (meta)data to the appropriate locations. To be implemented. """
-    pass

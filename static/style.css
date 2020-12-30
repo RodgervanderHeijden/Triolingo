@@ -63,7 +63,7 @@ h4 {
 }
 
 h1 {
-	color: rgb(103, 12, 63) !important;
+  color:  rgb(103, 12, 63)  !important;
 }
 
 .brand-icon {
@@ -96,7 +96,6 @@ a:hover {
 .btn-lg {
 	outline: 1px !important;
 }
-
 
 #last-item {
 	width: 500px !important;
