@@ -183,5 +183,13 @@ def about():
     return render_template("about_triolingo.html")
 
 
+@app.route("/contact")
+def contact():
+    """
+        Page with some basic contact information.
+    """
+    return render_template("contact.html")
+
+
 if __name__ == '__main__':
     app.run(debug=True)
