@@ -4,6 +4,12 @@ import codecs
 import csv
 import string
 
+'''
+In case of a fresh installation,
+first run create_tatoeba_lexicon.py.
+This script builds on that.
+'''
+
 
 def import_tatoeba():
     """Imports and returns the tatoeba data."""

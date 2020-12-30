@@ -1,0 +1,9 @@
+env/
+.idea/
+__pycache__/
+backend/data/my_data/
+backend/data/tatoeba/*.tsv
+*.ipynb
+adjusted_quizzing.py
+*.csv
+!quiz_df.csv
