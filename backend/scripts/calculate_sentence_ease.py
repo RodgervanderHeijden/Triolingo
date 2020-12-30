@@ -4,6 +4,7 @@ import codecs
 import csv
 import string
 
+<<<<<<< Updated upstream
 '''
 In case of a fresh installation,
 first run create_tatoeba_lexicon.py.
@@ -13,6 +14,15 @@ This script builds on that.
 
 def import_tatoeba():
     """Imports and returns the tatoeba data."""
+=======
+'''In case of a fresh installation,
+first run create_tatoeba_lexicon.py.
+This script builds on that.'''
+
+
+def import_tatoeba():
+    """Import and return the tatoeba data."""
+>>>>>>> Stashed changes
     with codecs.open("../data/tatoeba/tatoeba_sentences.csv", 'r', encoding="utf-8") as f:
         df_pol_reader = csv.DictReader(f, delimiter=",")
         df_all_sentences = pd.DataFrame(df_pol_reader)
@@ -20,7 +30,11 @@ def import_tatoeba():
 
 
 def import_word_counts():
+<<<<<<< Updated upstream
     """Imports and returns the word counts."""
+=======
+    """Import and return the word counts."""
+>>>>>>> Stashed changes
     with codecs.open("../data/tatoeba/word_counts.csv", 'r', encoding="utf-8") as f:
         df_reader = csv.DictReader(f, delimiter=",")
         df_word_counts = pd.DataFrame(df_reader)
@@ -28,11 +42,21 @@ def import_word_counts():
 
 
 def store_word_counts(df):
+<<<<<<< Updated upstream
     """Takes in a dataframe of format:
     ________________
     | word | count |
     |______|_______|
     and writes to word_counts.csv in format:
+=======
+    """Save the calculated word counts in word_counts.csv.
+
+    Keyword arguments: df of format:
+    ________________
+    | word | count |
+    |______|_______|
+    and write to word_counts.csv in format:
+>>>>>>> Stashed changes
     _________________________
     | wordID | word | count |
     |________|______|_______|
@@ -44,12 +68,22 @@ def store_word_counts(df):
 
 
 def calculate_and_store_sentence_ease(df):
+<<<<<<< Updated upstream
     """
     Takes in a dataframe of format:
     ________________________________________________
     | sentenceID | sentence_pl | words_in_sentence |
     |____________|_____________|___________________|
     and writes to sentence_ease.csv in format:
+=======
+    """Calculate and store the metric sentence ease based on word frequency.
+
+    Take in a dataframe of format:
+    ________________________________________________
+    | sentenceID | sentence_pl | words_in_sentence |
+    |____________|_____________|___________________|
+    and write to sentence_ease.csv in format:
+>>>>>>> Stashed changes
     ________________________________________________________________
     | sentenceID | sentence_pl | words_in_sentence | sentence_ease |
     |____________|_____________|___________________|_______________|
@@ -70,6 +104,10 @@ def calculate_and_store_sentence_ease(df):
 
 
 def loop_over_tatoeba():
+<<<<<<< Updated upstream
+=======
+    """Central loop to ensure word counts and sentence ease get calculated."""
+>>>>>>> Stashed changes
     word_list = []
     df_polish_sentences = import_tatoeba()
     df_polish_sentences['words_in_sentence'] = pd.Series(dtype=object)
@@ -95,15 +133,24 @@ def loop_over_tatoeba():
 
 
 def import_sentence_ease():
+<<<<<<< Updated upstream
     """Imports and returns the word counts."""
+=======
+    """Import and return the word counts."""
+>>>>>>> Stashed changes
     with codecs.open("../data/tatoeba/sentence_ease_pl.csv", 'r', encoding="utf-8") as f:
         df_reader = csv.DictReader(f, delimiter=",")
         df_sentence_ease = pd.DataFrame(df_reader)
     return df_sentence_ease
 
 
+<<<<<<< Updated upstream
 
 def merge_sentence_ease_with_translations():
+=======
+def merge_sentence_ease_with_translations():
+    """Merge the stored sentence ease with the database of translations on sentenceID."""
+>>>>>>> Stashed changes
     df_sentence_ease = import_sentence_ease()
     df_tatoeba_sentences = import_tatoeba()
 
