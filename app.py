@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, url_for, redirect
 from helper_functions import select_quiz_words, check_answers, generate_answer_options, update_dataframe
 
 app = Flask(__name__)
+# temp variables, currently used as globals but to be rewritten as cookies
 current_question_no = 0
+answer_options = []
+index = 0
 
 
 @app.route('/quiz_confirmation', methods=["POST"])
@@ -69,7 +72,7 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             # B. the previous page is the screen after an answer has been given, and thus holds no new answer.
 
             # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
-            if (given_answer is not None):
+            if given_answer is not None:
                 url = request.referrer
 
                 sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
