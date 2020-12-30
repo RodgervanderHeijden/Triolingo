@@ -2,10 +2,11 @@ from flask import Flask, render_template, request, url_for, redirect
 from helper_functions import select_quiz_words, check_answers, generate_answer_options, update_dataframe
 
 app = Flask(__name__)
-# temp variables, currently used as globals but to be rewritten as cookies
+# temp variables, currently used as globals but to be rewritten as cookies or a class
 current_question_no = 0
 answer_options = []
 index = 0
+quiz_df = pd.DataFrame()
 
 
 @app.route('/quiz_confirmation', methods=["POST"])
