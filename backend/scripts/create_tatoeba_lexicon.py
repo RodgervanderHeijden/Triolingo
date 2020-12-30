@@ -3,13 +3,13 @@ import csv
 import codecs
 import numpy as np
 
-df_sentences = pd.DataFrame( )
+df_sentences = pd.DataFrame()
 
 
 def import_and_write_polish():
     with codecs.open(r"../data/tatoeba/pol_sentences.tsv", 'r', 'utf-8') as f:
         df_pol_reader = csv.reader(f, delimiter="\t", )
-        df_pol_return = pd.DataFrame(df_pol_reader)[[0,2]]
+        df_pol_return = pd.DataFrame(df_pol_reader)[[0, 2]]
     df_pol_return.columns = ['sentenceID', 'sentence_pl']
     return df_pol_return
 
@@ -26,7 +26,7 @@ def match_links(df):
 def import_and_write_english(df):
     with codecs.open(r"../data/tatoeba/eng_sentences.tsv", 'r', 'utf-8') as f:
         df_eng_reader = csv.reader(f, delimiter="\t", )
-        df_eng_data = pd.DataFrame(df_eng_reader)[[0,1,2]]
+        df_eng_data = pd.DataFrame(df_eng_reader)[[0, 1, 2]]
     df_eng_data.columns = ['sentenceID_en', 'lang', 'sentence_en']
     df_return = df.merge(df_eng_data, how='left', left_on=['matched_sentenceID'], right_on=['sentenceID_en'])
     return df_return
@@ -35,9 +35,10 @@ def import_and_write_english(df):
 def import_and_write_dutch(df):
     with codecs.open(r"../data/tatoeba/nld_sentences.tsv", 'r', 'utf-8') as f:
         df_nl_reader = csv.reader(f, delimiter="\t", )
-        df_nl_data = pd.DataFrame(df_nl_reader)[[0,1,2]]
+        df_nl_data = pd.DataFrame(df_nl_reader)[[0, 1, 2]]
     df_nl_data.columns = ['sentenceID_nl', 'lang', 'sentence_nl']
-    df_return = df.merge(df_nl_data, how='left', left_on=['matched_sentenceID'], right_on=['sentenceID_nl'], suffixes=('_left', '_right'))
+    df_return = df.merge(df_nl_data, how='left', left_on=['matched_sentenceID'], right_on=['sentenceID_nl'],
+                         suffixes=('_left', '_right'))
     return df_return
 
 
