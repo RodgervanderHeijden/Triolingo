@@ -42,16 +42,13 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     while current_question_no < no_questions:
 
         if (request.method == "POST") & (request.referrer[-18:] == '/quiz_confirmation'):
-
             global quiz_df
             quiz_df = select_quiz_words(difficulty, no_questions, mode)
             current_question = quiz_df.iloc[current_question_no]['sentence_pl']
             sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
-
             quiz_df_html = [quiz_df.to_html(classes='data')]
 
             if mode == 'multiple choice':
-
                 global answer_options, index
                 answer_options, index = generate_answer_options(sentenceID)
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
@@ -68,7 +65,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             # Two options exist:
             # A. the previous page is the quiz, and thus the request holds an answer
             # B. the previous page is the screen after an answer has been given, and thus holds no new answer.
-
 
             # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
             if (given_answer is not None):
@@ -96,10 +92,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 else:
                     is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
-
-                current_question = quiz_df.iloc[current_question_no]['sentence_pl']
-                quiz_df_html = [quiz_df.to_html(classes='data')]
-
                 # If correct: quiz the next question
                 if is_correct:
                     # Update index and generate a new sentenceID
@@ -115,7 +107,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 return render_template("answer_feedback.html", given_answer=given_answer,
                                        current_question=previous_question, url=url,
                                        is_correct=is_correct)
-
 
             elif (from_feedback_page is not None) & (given_answer is None):
                 quiz_df_html = [quiz_df.to_html(classes='data')]

@@ -8,9 +8,7 @@ import string
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
-    """
-        Imports and returns the own data (open questions)
-    """
+    """ Imports and returns the own data (open questions) """
 #    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
     global lexicon
     lexicon = True
@@ -18,18 +16,14 @@ def import_lexicon():
 
 
 def import_tatoeba():
-    """
-        Imports and returns the tatoeba data (multiple choice)
-    """
+    """ Imports and returns the tatoeba data (multiple choice) """
     global lexicon
     lexicon = False
     return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
 def retrieve_all_correct_answers(sentenceID):
-    """
-        Given a sentence ID, it retrieves and returns all other correct answers.
-    """
+    """ Given a sentence ID, it retrieves and returns all other correct answers. """
     possible_answers = []
     if lexicon == True:
         data = import_lexicon()
@@ -125,8 +119,5 @@ def generate_answer_options(questionID):
 
 
 def update_dataframe():
-    """
-        Stores the quiz (meta)data to the appropriate locations.
-        To be implemented.
-    """
+    """ Stores the quiz (meta)data to the appropriate locations. To be implemented. """
     pass

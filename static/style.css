@@ -9,34 +9,33 @@ body {
 	1b3b6f is donkerblauw, heeft wel wat
 	270722 is echt flink paars
 	370722
-
 	*/
-	background-color: #fff9f9;
+	background-color: rgb(255, 249, 249);
 	max-width: 1000px;
 	margin: 0 auto;
 	padding: 20px;
 }
 
 .form__fieldset {
-	border-color: #670c3f;
+	border-color: rgb(103, 12, 63);
 	border-radius: 3px;
 	padding: 4px 2px;
 }
 
 .form__input {
-	border-color: #670c3f;
+	border-color: rgb(103, 12, 63);
 	border-radius: 3px;
 	font-size: 1rem;
 }
 
 .form__select {
-	border-color: #670c3f;
+	border-color: rgb(103, 12, 63);
 	border-radius: 3px;
 	padding: 4px 2px;
 }
 
 .form__label {
-	border-color: #670c3f;
+	border-color: rgb(103, 12, 63);
 	border-radius: 3px;
 	margin-right: 20px;
 }
@@ -60,11 +59,11 @@ tbody {
 
 h4 {
 	text-align: center;
-	color: #670c3f;
+	color: rgb(103, 12, 63);
 }
 
 h1 {
-	color: #670c3f !important;
+	color: rgb(103, 12, 63) !important;
 }
 
 .brand-icon {
@@ -73,43 +72,39 @@ h1 {
 }
 
 .btn-outline-primary {
-	color: #670c3f !important;
-	border-color: #670c3f !important;
+	color: rgb(103, 12, 63) !important;
+	border-color: rgb(103, 12, 63) !important;
 }
 
 .btn-outline-primary:hover {
-	background-color: #670c3f !important;
-	border-color: #670c3f !important;
+	background-color: rgb(103, 12, 63) !important;
+	border-color: rgb(103, 12, 63) !important;
 	color: white !important;
 }
 
 a {
-	color: #670c3f !important;
+	color: rgb(103, 12, 63) !important;
 	text-decoration: none !important;
-	border-color: #670c3f !important;
+	border-color: rgb(103, 12, 63) !important;
 	border-width: 3px !important;
 }
 
 a:hover {
-	color: #670c3f !important;
+	color: rgb(103, 12, 63) !important;
 }
 
 .btn-lg {
 	outline: 1px !important;
 }
 
-.inherit-width {
-	width: inherit !important;
-}
 
 #last-item {
 	width: 500px !important;
-	text-align: right !important;
 	float: right !important;
 }
 
 .house-style {
-	color: #670c3f !important;
+	color: rgb(103, 12, 63) !important;
 }
 
 .row .col- * {
