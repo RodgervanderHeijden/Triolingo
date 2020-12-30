@@ -32,7 +32,7 @@ def retrieve_all_correct_answers(sentenceID):
     elif not lexicon:
         data = import_tatoeba()
     data = data.loc[data['sentenceID'] == sentenceID]
-    for index, row in data.iterrows():
+    for _, row in data.iterrows():
         if row['lang'] == 'en':
             possible_answers.append(row['sentence_en'])
         elif row['lang'] == 'nl':
@@ -41,7 +41,8 @@ def retrieve_all_correct_answers(sentenceID):
 
 
 def select_quiz_words(difficulty, number_of_questions, mode):
-    """Select words that will be quizzed.
+    """
+    Select words that will be quizzed.
 
     Create and return a small df of size (number_of_questions).
     Mode currently is used as proxy for sentence/word questions,
@@ -65,7 +66,8 @@ def select_quiz_words(difficulty, number_of_questions, mode):
 
 
 def check_answers(given_answer, quiz_df, sentenceID):
-    """Check whether the user-provided answer is correct.
+    """
+    Check whether the user-provided answer is correct.
 
     Given answer and the sentenceID, check whether it is correct.
     First use question_number (as index of quiz_df) to find matching
@@ -87,7 +89,8 @@ def check_answers(given_answer, quiz_df, sentenceID):
 
 
 def generate_answer_options(questionID):
-    """Generates three incorrect answer options for multiple choice questions.
+    """
+    Generates three incorrect answer options for multiple choice questions.
 
     In case of multiple choice questions, three incorrect options have to be selected.
     With just questionID, the first answer of all_correct_answers is taken (fewer args passed),
@@ -106,7 +109,7 @@ def generate_answer_options(questionID):
     three_random_numbers = np.random.choice(a=range(len(df)), size=3,
                                          replace=False)
     incorrect_answers = []
-    for index, row in df.iloc[three_random_numbers].iterrows():
+    for _, row in df.iloc[three_random_numbers].iterrows():
         if row['lang'] == 'en':
             incorrect_answers.append(row['sentence_en'])
         elif row['lang'] == 'nl':
@@ -121,3 +124,4 @@ def generate_answer_options(questionID):
 
 def update_dataframe():
     """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
+    pass

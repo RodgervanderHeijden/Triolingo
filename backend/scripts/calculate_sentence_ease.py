@@ -4,9 +4,9 @@ import codecs
 import csv
 import string
 
-'''In case of a fresh installation,
-first run create_tatoeba_lexicon.py.
-This script builds on that.'''
+# In case of a fresh installation,
+# first run create_tatoeba_lexicon.py.
+# This script builds on that.
 
 
 def import_tatoeba():
@@ -26,7 +26,8 @@ def import_word_counts():
 
 
 def store_word_counts(df):
-    """Save the calculated word counts in word_counts.csv.
+    """
+    Save the calculated word counts in word_counts.csv.
 
     Keyword arguments: df of format:
     ________________
@@ -44,7 +45,8 @@ def store_word_counts(df):
 
 
 def calculate_and_store_sentence_ease(df):
-    """Calculate and store the metric sentence ease based on word frequency.
+    """
+    Calculate and store the metric sentence ease based on word frequency.
 
     Take in a dataframe of format:
     ________________________________________________
@@ -60,8 +62,8 @@ def calculate_and_store_sentence_ease(df):
     df_word_counts = import_word_counts()
     df['sentence_ease'] = pd.Series(dtype=float)
 
-    for index, row in df.iterrows():
-        sentence_summed_count = sum([int(df_word_counts.loc[df_word_counts['word']==word, 'count']) for word in row['words_in_sentence']])
+    for _, row in df.iterrows():
+        sentence_summed_count = sum([int(df_word_counts.loc[df_word_counts['word'] == word, 'count']) for word in row['words_in_sentence']])
         sentence_length = len(row['words_in_sentence'])
         sentence_ease = sentence_summed_count/sentence_length
 
