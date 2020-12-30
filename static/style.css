@@ -1,65 +1,65 @@
 html {
-	font-family: "Times", sans-serif;
+  font-family: "Times", sans-serif;
 }
 
 body {
-	/*
-	c2e8fb is a tad more towards babyblue, but hue could increase i think
-	#ADA1E3 looks quite nice, its a decently purple color, not very light though
-	1b3b6f is donkerblauw, heeft wel wat
-	270722 is echt flink paars
-	370722
-	*/
-	background-color: rgb(255, 249, 249);
+  /*
+  c2e8fb is a tad more towards babyblue, but hue could increase i think
+  #ADA1E3 looks quite nice, its a decently purple color, not very light though
+  1b3b6f is donkerblauw, heeft wel wat
+  270722 is echt flink paars
+  370722
+  */
+  background-color: rgb(255, 249, 249);
   max-width: 1000px;
-	margin: 0 auto;
-	padding: 20px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .form__fieldset {
-	border-color: rgb(103, 12, 63);
-	border-radius: 3px;
-	padding: 4px 2px;
+  border-color: rgb(103, 12, 63);
+  border-radius: 3px;
+  padding: 4px 2px;
 }
 
 .form__input {
-	border-color: rgb(103, 12, 63);
-	border-radius: 3px;
-	font-size: 1rem;
+  border-color: rgb(103, 12, 63);
+  border-radius: 3px;
+  font-size: 1rem;
 }
 
 .form__select {
-	border-color: rgb(103, 12, 63);
-	border-radius: 3px;
-	padding: 4px 2px;
+  border-color: rgb(103, 12, 63);
+  border-radius: 3px;
+  padding: 4px 2px;
 }
 
 .form__label {
-	border-color: rgb(103, 12, 63);
-	border-radius: 3px;
-	margin-right: 20px;
+  border-color: rgb(103, 12, 63);
+  border-radius: 3px;
+  margin-right: 20px;
 }
 
 .rightAlign {
-	float: right;
+  float: right;
 }
 
 table {
-	width: 100%;
-	border: none;
+  width: 100%;
+  border: none;
 }
 
 thead {
-	text-align: right;
+  text-align: right;
 }
 
 tbody {
-	text-align: right;
+  text-align: right;
 }
 
 h4 {
-	text-align: center;
-	color: rgb(103, 12, 63);
+  text-align: center;
+  color: rgb(103, 12, 63);
 }
 
 h1 {
@@ -67,58 +67,58 @@ h1 {
 }
 
 .brand-icon {
-	font-size: 2rem;
-	margin-right: 2.5rem !important;
+  font-size: 2rem;
+  margin-right: 2.5rem !important;
 }
 
 .btn-outline-primary {
-	color: rgb(103, 12, 63) !important;
-	border-color: rgb(103, 12, 63) !important;
+  color: rgb(103, 12, 63) !important;
+  border-color: rgb(103, 12, 63) !important;
 }
 
 .btn-outline-primary:hover {
-	background-color: rgb(103, 12, 63) !important;
-	border-color: rgb(103, 12, 63) !important;
-	color: white !important;
+  background-color: rgb(103, 12, 63) !important;
+  border-color: rgb(103, 12, 63) !important;
+  color: white !important;
 }
 
 a {
-	color: rgb(103, 12, 63) !important;
-	text-decoration: none !important;
-	border-color: rgb(103, 12, 63) !important;
-	border-width: 3px !important;
+  color: rgb(103, 12, 63) !important;
+  text-decoration: none !important;
+  border-color: rgb(103, 12, 63) !important;
+  border-width: 3px !important;
 }
 
 a:hover {
-	color: rgb(103, 12, 63) !important;
+  color: rgb(103, 12, 63) !important;
 }
 
 .btn-lg {
-	outline: 1px !important;
+  outline: 1px !important;
 }
 
 #last-item {
-	width: 500px !important;
-	float: right !important;
+  width: 500px !important;
+  float: right !important;
 }
 
 .house-style {
-	color: rgb(103, 12, 63) !important;
+  color: rgb(103, 12, 63) !important;
 }
 
 .row .col- * {
-	display: inline-block;
-	vertical-align: middle;
-	float: none;
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
 }
 
 .multiple-choice {
-	width: 100%;
-	margin-top: 0.75em;
-	margin-bottom: 0.75em;
+  width: 100%;
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
 }
 
 .width-40 {
-	width: 40%;
-	margin-bottom: 0.75em;
+  width: 40%;
+  margin-bottom: 0.75em;
 }
