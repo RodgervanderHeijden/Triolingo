@@ -8,7 +8,7 @@ import string
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
-    """ Imports and returns the own data (open questions) """
+    """Imports and returns the own data (open questions)"""
     #    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
     global lexicon
     lexicon = True
@@ -16,21 +16,21 @@ def import_lexicon():
 
 
 def import_tatoeba():
-    """ Imports and returns the tatoeba data (multiple choice) """
+    """Imports and returns the tatoeba data (multiple choice)"""
     global lexicon
     lexicon = False
     return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
 
 
 def retrieve_all_correct_answers(sentenceID):
-    """ Given a sentence ID, it retrieves and returns all other correct answers. """
+    """Given a sentence ID, it retrieves and returns all other correct answers."""
     possible_answers = []
-    if lexicon == True:
+    if lexicon:
         data = import_lexicon()
-    elif lexicon == False:
+    elif not lexicon:
         data = import_tatoeba()
     data = data.loc[data['sentenceID'] == sentenceID]
-    for i, row in data.iterrows():
+    for row in data.iterrows():
         if row['lang'] == 'en':
             possible_answers.append(row['sentence_en'])
         elif row['lang'] == 'nl':
@@ -39,8 +39,7 @@ def retrieve_all_correct_answers(sentenceID):
 
 
 def select_quiz_words(difficulty, number_of_questions, mode):
-    """
-        Creates and returns a small df of size (number_of_questions).
+    """ Creates and returns a small df of size (number_of_questions).
         Mode currently is used as proxy for sentence/word questions,
         will be changed in the future. Difficulty is not taken into
         account yet, also future work (see issue #14).
@@ -80,11 +79,7 @@ def check_answers(given_answer, quiz_df, sentenceID):
         cleaned_answer = possible_answer.lower().translate(remove_punctuation)
         cleaned_correct_answers.append(cleaned_answer)
 
-    if cleaned_given_answer in cleaned_correct_answers:
-        return True
-    else:
-        return False
-
+    return cleaned_given_answer in cleaned_correct_answers
 
 def generate_answer_options(questionID):
     """
@@ -119,4 +114,5 @@ def generate_answer_options(questionID):
 
 
 def update_dataframe():
-    """ Stores the quiz (meta)data to the appropriate locations. To be implemented. """
+    """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
+    pass

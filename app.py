@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import select_quiz_words, check_answers, generate_answer_options
+from helper_functions import select_quiz_words, check_answers, generate_answer_options, update_dataframe
 
 app = Flask(__name__)
 current_question_no = 0
 
+
 @app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
+
     """
         A page to confirm the selected quiz settings (from form of settings page).
         Initially required to solve the issue of having two forms in the quiz page,
@@ -140,7 +142,7 @@ def show_quiz_data(difficulty, no_questions, mode):
 
     # TODO
     def update_lexicon():
-        pass
+        update_dataframe()
 
     quiz_df_html = [quiz_df.to_html(classes='data')]
     return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions, mode=mode,
