@@ -87,10 +87,8 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                     # and the just mapped numbers.
                     given_answer = int(given_answer)
                     given_answer -= 1
-                    if index == given_answer:
-                        is_correct = True
-                    else:
-                        is_correct = False
+                    is_correct = bool(index == given_answer)
+
                 else:
                     is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
@@ -116,8 +114,6 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 if mode == 'multiple choice':
                     sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
                     answer_options, index = generate_answer_options(sentenceID)
-
-                    print(answer_options[0], answer_options[1], answer_options[2], answer_options[3])
 
                     return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                            quiz_df=quiz_df_html, mode=mode, current_word=current_question,

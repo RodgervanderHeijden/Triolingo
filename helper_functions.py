@@ -115,4 +115,3 @@ def generate_answer_options(questionID):
 
 def update_dataframe():
     """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
-    pass
