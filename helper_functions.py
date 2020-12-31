@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import string
+import scipy.stats as stats
 
 lexicon = pd.DataFrame()
 
@@ -41,8 +42,7 @@ def retrieve_all_correct_answers(sentenceID):
 
 
 def select_quiz_words(difficulty, number_of_questions, mode):
-    """
-    Select words that will be quizzed.
+    """Select words that will be quizzed.
 
     Create and return a small df of size (number_of_questions).
     Mode currently is used as proxy for sentence/word questions,
@@ -54,20 +54,34 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     elif mode == 'open':
         df = import_lexicon()
 
-    # TODO: create meaningful weights, based on mastery ánd difficulty
-    # Weights: mastery of word
-    weights = len(df) * [1]
-    cum_weights = weights / np.sum(weights)
-    choice_list = np.random.choice(a=range(len(df)), size=number_of_questions,
-                                replace=False, p=cum_weights)
+    lower = 55000 # bounded, should change
+    upper = 60038
+    mu, sigma = 59000, 1000  # mu should change
+    X = stats.truncnorm(
+        a=(lower - mu) / sigma, b=(upper - mu) / sigma,
+        loc=mu, scale=sigma)
+    choice_list = list()
+    print(X.rvs(size=1))
+    print(int(X.rvs(1)))
+    for i in range(number_of_questions):
+        if int(X.rvs(1)) not in choice_list:
+            choice_list.append(int(X.rvs(1)))
+
+
+    #
+    # # Weights: mastery of word
+    # weights = len(df) * [1]
+    # cum_weights = weights / np.sum(weights)
+    # choice_list = np.random.choice(a=range(len(df)), size=number_of_questions,
+    #                             replace=False, p=cum_weights)
 
     chosen_words_df = df.iloc[choice_list]
+    print(chosen_words_df)
     return chosen_words_df
 
 
 def check_answers(given_answer, quiz_df, sentenceID):
-    """
-    Check whether the user-provided answer is correct.
+    """Check whether the user-provided answer is correct.
 
     Given answer and the sentenceID, check whether it is correct.
     First use question_number (as index of quiz_df) to find matching
@@ -89,8 +103,7 @@ def check_answers(given_answer, quiz_df, sentenceID):
 
 
 def generate_answer_options(questionID):
-    """
-    Generates three incorrect answer options for multiple choice questions.
+    """Generates three incorrect answer options for multiple choice questions.
 
     In case of multiple choice questions, three incorrect options have to be selected.
     With just questionID, the first answer of all_correct_answers is taken (fewer args passed),

@@ -12,15 +12,13 @@ quiz_df = pd.DataFrame()
 
 @app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
-    """
-    Confirm quiz settings and reroute to quiz with arguments in url.
+    """Confirm quiz settings and reroute to quiz with arguments in url.
 
     A page to confirm the selected quiz settings (from form of settings page).
     Initially required to solve the issue of having two forms in the quiz page,
     though it might be mitigated by using globals, url args and even sessions.
     For now, it works and it's fine.
     Current_question_no has to be set to 0, otherwise the second quiz does not work."""
-
     questions = int(request.form.get("amount"))
     difficulty = request.form.get('difficulty')
     mode = request.form.get("mode")
@@ -32,15 +30,13 @@ def confirm_quiz_settings():
 
 @app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
 def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
-    """
-    The quiz page.
+    """The quiz page.
 
     The beefy page where the quiz actually occurs. Takes in three args in URL.
     While the number of questions hasn't been reached, it goes in the loop, otherwise redirect.
     The loop has two conditions; the first one is when the form does not (yet) have a text,
     i.e. no answer has been given yet, i.e. the user arrives from quiz_setting_confirmation.
     The quiz subdf get decided there and written to global."""
-
     # Get from URL
     no_questions = int(no_questions)
     given_answer = request.form.get('text', None)
@@ -139,12 +135,10 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
 
 @app.route("/after_quiz/<difficulty>/<no_questions>/<mode>/", methods=["GET", "POST"])
 def show_quiz_data(difficulty, no_questions, mode):
-    """
-    Post-quiz diagnostics.
+    """Post-quiz diagnostics.
 
     With args in URL and global quiz_df shows the quizzed words and settings.
     Probably will be reworked to work with sessions, and requires some backend functionality still."""
-
     # TODO
     update_dataframe()
 
@@ -155,13 +149,11 @@ def show_quiz_data(difficulty, no_questions, mode):
 
 @app.route("/settings", methods=["GET"])
 def select_settings():
-    """
-    Form to select desired settings.
+    """Form to select desired settings.
 
     Quite standard page to select settings.
     Potential to add a post-method, delete the action on the form,
     and an if-statement here with redirect to confirm_settings, no prio though."""
-
     return render_template("select_quiz_settings.html")
 
 
