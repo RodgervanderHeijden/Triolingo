@@ -22,7 +22,7 @@ def import_tatoeba():
     """Import and return the tatoeba data (multiple choice)."""
     global lexicon
     lexicon = False
-    return pd.read_csv("./backend/data/tatoeba/tatoeba_sentences.csv")
+    return pd.read_csv("./backend/data/tatoeba/quiz_df.csv")
 
 
 def retrieve_all_correct_answers(sentenceID):
@@ -49,14 +49,28 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     will be changed in the future. Difficulty is not taken into
     account yet, also future work (see issue #14).
     """
+    # TODO
     if mode == 'multiple choice':
         df = import_tatoeba()
     elif mode == 'open':
         df = import_lexicon()
 
-    lower = 55000 # bounded, should change
-    upper = 60038
-    mu, sigma = 59000, 1000  # mu should change
+    # difficulty conditionals
+    if difficulty == 'easy':
+        lower = max(55000, 0)  # should change
+        upper = 60038
+        mu, sigma = 59000, 1000  # mu should change
+
+    elif difficulty == 'moderate':
+        lower = max(50000, 0)  # should change
+        upper = 60038
+        mu, sigma = 56500, 2000  # mu should change
+
+    elif difficulty == 'difficult':
+        lower = 0  # should change
+        upper = 60038
+        mu, sigma = 50000, 3000  # mu should change
+
     X = stats.truncnorm(
         a=(lower - mu) / sigma, b=(upper - mu) / sigma,
         loc=mu, scale=sigma)
@@ -67,14 +81,7 @@ def select_quiz_words(difficulty, number_of_questions, mode):
         if int(X.rvs(1)) not in choice_list:
             choice_list.append(int(X.rvs(1)))
 
-
-    #
-    # # Weights: mastery of word
-    # weights = len(df) * [1]
-    # cum_weights = weights / np.sum(weights)
-    # choice_list = np.random.choice(a=range(len(df)), size=number_of_questions,
-    #                             replace=False, p=cum_weights)
-
+    df.sort_values(by='sentence_ease', ascending=True, inplace=True)
     chosen_words_df = df.iloc[choice_list]
     print(chosen_words_df)
     return chosen_words_df

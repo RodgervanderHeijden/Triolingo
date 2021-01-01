@@ -64,7 +64,6 @@ def calculate_and_store_sentence_ease(df):
         sentence_summed_count = sum([int(df_word_counts.loc[df_word_counts['word'] == word, 'count']) for word in row['words_in_sentence']])
         sentence_length = len(row['words_in_sentence'])
         sentence_ease = sentence_summed_count/sentence_length
-
         df.at[index, 'sentence_ease'] = sentence_ease
     sorted_df = df.sort_values(by='sentence_ease', ascending=True)
     sorted_df.to_csv('../data/tatoeba/sentence_ease_pl.csv', index=False)
@@ -75,9 +74,7 @@ def loop_over_tatoeba():
     word_list = []
     df_polish_sentences = import_tatoeba()
     df_polish_sentences['words_in_sentence'] = pd.Series(dtype=object)
-    df_polish_sentences.drop([['sentenceID', 'sentence_pl']])
-
-    df_polish_sentences = df_polish_sentences.drop_duplicates(['sentenceID'])
+    df_polish_sentences.drop_duplicates(['sentenceID'], inplace=True)
     for index, row in df_polish_sentences.iterrows():
         # Take the sentence, convert it to lowercase,
         # take out any punctuation,
@@ -111,10 +108,9 @@ def merge_sentence_ease_with_translations():
 
     df_return = df_tatoeba_sentences.merge(df_sentence_ease[['sentenceID', 'words_in_sentence', 'sentence_ease']],
                                            how='left', left_on=['sentenceID'], right_on=['sentenceID'])
-    sorted_df = df_return.sort_values(by='sentence_ease', ascending=True)
-    print(sorted_df.head(5))
-    print(sorted_df.tail(5))
+    sorted_df = df_return.sort_values(by='sentence_ease', ascending=True, inplace=True)
     sorted_df.to_csv('../data/tatoeba/quiz_df.csv', index=False)
+
 
 loop_over_tatoeba()
 merge_sentence_ease_with_translations()
