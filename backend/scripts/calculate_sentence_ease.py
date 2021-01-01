@@ -65,7 +65,8 @@ def calculate_and_store_sentence_ease(df):
         sentence_length = len(row['words_in_sentence'])
         sentence_ease = sentence_summed_count/sentence_length
         df.at[index, 'sentence_ease'] = sentence_ease
-    sorted_df = df.sort_values(by='sentence_ease', ascending=True)
+    df['sentence_ease'].astype(int)
+    sorted_df = df.sort_values(by='sentence_ease', ascending=False)
     sorted_df.to_csv('../data/tatoeba/sentence_ease_pl.csv', index=False)
 
 
@@ -108,7 +109,7 @@ def merge_sentence_ease_with_translations():
 
     df_return = df_tatoeba_sentences.merge(df_sentence_ease[['sentenceID', 'words_in_sentence', 'sentence_ease']],
                                            how='left', left_on=['sentenceID'], right_on=['sentenceID'])
-    sorted_df = df_return.sort_values(by='sentence_ease', ascending=True, inplace=True)
+    sorted_df = df_return.sort_values(by='sentence_ease', ascending=False)
     sorted_df.to_csv('../data/tatoeba/quiz_df.csv', index=False)
 
 

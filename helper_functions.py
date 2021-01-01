@@ -55,33 +55,45 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     elif mode == 'open':
         df = import_lexicon()
 
+    # Redo with asc = True
+
+    # A percentage along the df-length for where the mean of the distribution should lie
+    # More good questions thus should increase these values, and the proportion of the df
+    # that is considered known. The three etas should be linked at some stage, to ensure
+    # that the easy questions (after a lot of practicing) don't become more difficult than
+    # the moderate ones etc
+    easy_eta = 0.01
+    moderate_eta = 0.05
+    difficult_eta = 0.10
     # difficulty conditionals
     if difficulty == 'easy':
-        lower = max(55000, 0)  # should change
-        upper = 60038
-        mu, sigma = 59000, 1000  # mu should change
+        lower = max(0, 0)  # should change (one should allow movement, other should stay 0 for certainty)
+        upper = len(df)-1
+        mu, sigma = easy_eta*len(df), 200  # mu should change
+        print(mu, sigma)
 
     elif difficulty == 'moderate':
-        lower = max(50000, 0)  # should change
-        upper = 60038
-        mu, sigma = 56500, 2000  # mu should change
+        lower = max(0, 0)  # should change
+        upper = len(df)-1
+        mu, sigma = moderate_eta*len(df), 2000  # mu should change
 
     elif difficulty == 'difficult':
-        lower = 0  # should change
-        upper = 60038
-        mu, sigma = 50000, 3000  # mu should change
+        lower = max(0,0)  # should change
+        upper = len(df)-1
+        mu, sigma = difficult_eta*len(df), 3000  # mu should change
 
     X = stats.truncnorm(
         a=(lower - mu) / sigma, b=(upper - mu) / sigma,
         loc=mu, scale=sigma)
     choice_list = list()
-    print(X.rvs(size=1))
-    print(int(X.rvs(1)))
     for i in range(number_of_questions):
-        if int(X.rvs(1)) not in choice_list:
-            choice_list.append(int(X.rvs(1)))
+        single_sample = int(X.rvs(1))
+        print(single_sample, df.iloc[single_sample])
+        if single_sample not in choice_list:
+            choice_list.append(single_sample)
 
-    df.sort_values(by='sentence_ease', ascending=True, inplace=True)
+    print(choice_list)
+    df.sort_values(by='sentence_ease', ascending=False, inplace=True)
     chosen_words_df = df.iloc[choice_list]
     print(chosen_words_df)
     return chosen_words_df
