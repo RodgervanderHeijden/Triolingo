@@ -12,7 +12,6 @@ lexicon = pd.DataFrame()
 # see: http://nkjp.pl/index.php?page=14&lang=1
 def import_lexicon():
     """Import and return the own data (open questions)."""
-    #    return pd.read_csv("./backend/data/my_data/Lexicon.csv")
     global lexicon
     lexicon = True
     return pd.read_csv("./backend/data/my_data/clean_lexicon.csv", sep=';')
@@ -22,7 +21,7 @@ def import_tatoeba():
     """Import and return the tatoeba data (multiple choice)."""
     global lexicon
     lexicon = False
-    return pd.read_csv("./backend/data/tatoeba/quiz_df.csv")
+    return pd.read_csv("./backend/data/tatoeba/quiz_df.csv").sort_values(by=['sentence_ease'], ascending=False)
 
 
 def retrieve_all_correct_answers(sentenceID):
@@ -47,8 +46,7 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     Create and return a small df of size (number_of_questions).
     Mode currently is used as proxy for sentence/word questions,
     will be changed in the future. Difficulty is not taken into
-    account yet, also future work (see issue #14).
-    """
+    account yet, also future work (see issue #14)."""
     # TODO
     if mode == 'multiple choice':
         df = import_tatoeba()
@@ -70,7 +68,6 @@ def select_quiz_words(difficulty, number_of_questions, mode):
         lower = max(0, 0)  # should change (one should allow movement, other should stay 0 for certainty)
         upper = len(df)-1
         mu, sigma = easy_eta*len(df), 200  # mu should change
-        print(mu, sigma)
 
     elif difficulty == 'moderate':
         lower = max(0, 0)  # should change
@@ -86,16 +83,16 @@ def select_quiz_words(difficulty, number_of_questions, mode):
         a=(lower - mu) / sigma, b=(upper - mu) / sigma,
         loc=mu, scale=sigma)
     choice_list = list()
-    for i in range(number_of_questions):
+
+    while len(choice_list) < number_of_questions:
         single_sample = int(X.rvs(1))
-        print(single_sample, df.iloc[single_sample])
+        #print(single_sample, df.iloc[single_sample])
         if single_sample not in choice_list:
             choice_list.append(single_sample)
 
-    print(choice_list)
-    df.sort_values(by='sentence_ease', ascending=False, inplace=True)
+    print(choice_list.mean())
     chosen_words_df = df.iloc[choice_list]
-    print(chosen_words_df)
+    #print(chosen_words_df)
     return chosen_words_df
 
 
@@ -130,8 +127,7 @@ def generate_answer_options(questionID):
     has multiple correct translations in the database, multiple options could be correct. However,
     as evaluation takes this into account, it will also be evaluated correctly, and no tricky
     edge case mitigation should be done to combat this unlikely event.
-    Return both the already shuffled list with 4 answer options and the index of a correct one.
-    """
+    Return both the already shuffled list with 4 answer options and the index of a correct one."""
     multiple_choice_options = []
 
     all_correct_answers = retrieve_all_correct_answers(questionID)
