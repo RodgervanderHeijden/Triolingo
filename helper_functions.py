@@ -45,8 +45,7 @@ def select_quiz_words(difficulty, number_of_questions, mode):
 
     Create and return a small df of size (number_of_questions).
     Mode currently is used as proxy for sentence/word questions,
-    will be changed in the future. Difficulty is not taken into
-    account yet, also future work (see issue #14)."""
+    will be changed in the future."""
     # TODO
     if mode == 'multiple choice':
         df = import_tatoeba()
@@ -86,13 +85,10 @@ def select_quiz_words(difficulty, number_of_questions, mode):
 
     while len(choice_list) < number_of_questions:
         single_sample = int(X.rvs(1))
-        #print(single_sample, df.iloc[single_sample])
         if single_sample not in choice_list:
             choice_list.append(single_sample)
 
-    print(choice_list.mean())
     chosen_words_df = df.iloc[choice_list]
-    #print(chosen_words_df)
     return chosen_words_df
 
 
