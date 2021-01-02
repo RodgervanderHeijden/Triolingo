@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import select_quiz_words, check_answers, generate_answer_options, update_dataframe
+from helper_functions import select_quiz_words, check_answers, generate_answer_options, after_quiz
 import pandas as pd
 
 app = Flask(__name__)
@@ -8,7 +8,6 @@ current_question_no = 0
 answer_options = []
 index = 0
 quiz_df = pd.DataFrame()
-
 quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
 
 
@@ -26,6 +25,8 @@ def confirm_quiz_settings():
     mode = request.form.get("mode")
     global current_question_no
     current_question_no = 0
+    global quiz_results
+    quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
     return render_template("quiz_confirmation.html", difficulty=difficulty,
                            questions=questions, mode=mode)
 
@@ -65,7 +66,7 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                                        answer_option_1=answer_options[0],
                                        answer_option_2=answer_options[1],
                                        answer_option_3=answer_options[2],
-                                       answer_option_4=answer_options[3],)
+                                       answer_option_4=answer_options[3], )
             elif mode == 'open':
                 return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
                                        quiz_df=quiz_df_html, mode=mode, current_word=current_question)
@@ -100,14 +101,12 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 else:
                     is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
-
                 current_question = quiz_df.iloc[current_question_no]['sentence_pl']
                 quiz_results = quiz_results.append({'sentenceID': sentenceID,
                                                     'Question': current_question,
                                                     'Given answer': given_answer,
                                                     'correct': is_correct},
-                                    ignore_index=True)
-                print(quiz_results)
+                                                   ignore_index=True)
                 # If correct: quiz the next question
                 if is_correct:
                     # Update index and generate a new sentenceID
@@ -147,17 +146,15 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
 
 @app.route("/after_quiz/<difficulty>/<no_questions>/<mode>/", methods=["GET", "POST"])
 def show_quiz_data(difficulty, no_questions, mode):
-    """Post-quiz diagnostics.
-
-    With args in URL and global quiz_df shows the quizzed words and settings.
-    Probably will be reworked to work with sessions, and requires some backend functionality still."""
-    # TODO
-    update_dataframe()
+    """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
 
     global quiz_results
-    quiz_results = [quiz_results.to_html(classes='data')]
+    after_quiz(quiz_results, difficulty)
+
+    #global quiz_results
+    quiz_results_html = [quiz_results.to_html(classes='data')]
     return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions, mode=mode,
-                           quiz_df=quiz_results)
+                           quiz_df=quiz_results_html)
 
 
 @app.route("/settings", methods=["GET"])

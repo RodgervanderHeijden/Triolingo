@@ -4,6 +4,7 @@ import string
 import scipy.stats as stats
 
 lexicon = pd.DataFrame()
+language_proficiency = 3.741582
 
 
 # Import the dataframe with all sentences (as of now Lexicon)
@@ -89,6 +90,8 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     # that is considered known. The three etas should be linked at some stage, to ensure
     # that the easy questions (after a lot of practicing) don't become more difficult than
     # the moderate ones etc
+
+    #### Include language proficiency here
     easy_eta = 0.01
     moderate_eta = 0.05
     difficult_eta = 0.10
@@ -96,17 +99,17 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     if difficulty == 'easy':
         lower = max(0, 0)  # should change (one should allow movement, other should stay 0 for certainty)
         upper = len(df)-1
-        mu, sigma = easy_eta*len(df), 200  # mu should change
+        mu, sigma = language_proficiency*len(df)*easy_eta, 200  # mu should change
 
     elif difficulty == 'moderate':
         lower = max(0, 0)  # should change
         upper = len(df)-1
-        mu, sigma = moderate_eta*len(df), 2000  # mu should change
+        mu, sigma = language_proficiency*len(df)*moderate_eta, 2000  # mu should change
 
     elif difficulty == 'difficult':
         lower = max(0,0)  # should change
         upper = len(df)-1
-        mu, sigma = difficult_eta*len(df), 3000  # mu should change
+        mu, sigma = language_proficiency*len(df)*difficult_eta, 3000  # mu should change
 
     X = stats.truncnorm(
         a=(lower - mu) / sigma, b=(upper - mu) / sigma,
@@ -148,44 +151,55 @@ def expected_correct_ratio(difficulty):
         return 0.8
     elif difficulty == "moderate":
         return 0.6
-    elif difficulty == "hard":
+    elif difficulty == "difficult":
         return 0.3
 
 
-def calculate_error(difficulty, quiz_list):
+def calculate_error(quiz_answers_correct, difficulty):
     y_hat = expected_correct_ratio(difficulty)
-    score = sum(quiz_results[1])/len(quiz_results)
+    score = sum(quiz_answers_correct)/len(quiz_answers_correct)
     error = (score-y_hat)
-    print(error, score, y_hat)
-
-    update_eta(error, quiz_list)
+    return error
 
 
+def update_language_proficiency(quiz_results, difficulty):
+    """Hier kom je dan, input quiz_results. Deze callt calculate_error.
+    Ooko callt ie import_tatoeba, en verandert de waarde naar ease*personal_ease. Multiplication with language proficiency happens at selection."""
+    error = calculate_error(quiz_results['correct'], difficulty)
+    global language_proficiency
+    language_proficiency = language_proficiency * (1 + (error*0.1))
+    print(f"Here is the eta {language_proficiency}")
 
 
-def update_eta(error, quiz_list):
-    global eta
-    eta = eta * (1 + error)
-    mu = eta * 0.01 * 60000
-    print(f"Here is the eta {eta} and mu {mu}")
-    global sentence_scores
-
-    for sentence_score in range(len(sentence_scores)):
-        if quiz_list[sentence_score]:
-            sentence_scores[sentence_score] = sentence_scores[sentence_score] * 1.20
-        else:
-            sentence_scores[sentence_score] = sentence_scores[sentence_score] * 0.80
-
-    sentence_scores = sentence_scores
-    print(sentence_scores)
-
-
-def update_dataframe():
+def update_dataframe(quiz_results):
     """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
-    pass
+    df = import_tatoeba()
+    for i, row in quiz_results.iterrows():
+        print(df.loc[df['sentenceID'] == row['sentenceID']])
+        data_row_index = df.loc[df['sentenceID'] == row['sentenceID']].index
+        #print(data_row_index)
+        print(f"data_row_index {data_row_index}")
+        print(df.iloc[data_row_index])
+        print("HIERBOVEN data row index in df iloc, hieronder de value")
+        print(df.iloc[data_row_index]['personal_sentence_ease'])
+        print("Hieronder dan weer een probeerseltje")
+        print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
+
+        if quiz_results['correct'][i]:
+            df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'] = (
+                                      df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease']) * 1.25
+            #df.at[data_row_index, 'personal_sentence_ease'] = (df.iloc[data_row_index]['personal_sentence_ease'].value) * 1.20
+            print("hierfaga")
+        else:
+            df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'] = (
+                                      df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease']) * 0.80
+#            df.at[data_row_index, 'personal_sentence_ease'] = df.iloc[data_row_index]['personal_sentence_ease'] * 0.80
+            print("daraega")
+        print(df.loc[data_row_index]['personal_sentence_ease'])
+        print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
 
 
-def after_quiz():
+def after_quiz(quiz_results, difficulty):
     """Method to call after quiz has finished. Write results, calculate new scores."""
-    update_eta()
-    update_dataframe()
+    update_language_proficiency(quiz_results, difficulty)
+    #update_dataframe(quiz_results)
