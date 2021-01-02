@@ -9,6 +9,8 @@ answer_options = []
 index = 0
 quiz_df = pd.DataFrame()
 
+quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
+
 
 @app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
@@ -45,7 +47,8 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     # Upon first visit of the route, no answer has yet been given
     # Here a to be quizzed sub df gets selected and returned
     global current_question_no
-    while current_question_no < no_questions:
+    global quiz_results
+    while sum(quiz_results['correct']) < no_questions:
 
         if (request.method == "POST") & (request.referrer[-18:] == '/quiz_confirmation'):
             global quiz_df
@@ -92,10 +95,19 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                     given_answer = int(given_answer)
                     given_answer -= 1
                     is_correct = bool(index == given_answer)
+                    given_answer = answer_options[given_answer]
 
                 else:
                     is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
+
+                current_question = quiz_df.iloc[current_question_no]['sentence_pl']
+                quiz_results = quiz_results.append({'sentenceID': sentenceID,
+                                                    'Question': current_question,
+                                                    'Given answer': given_answer,
+                                                    'correct': is_correct},
+                                    ignore_index=True)
+                print(quiz_results)
                 # If correct: quiz the next question
                 if is_correct:
                     # Update index and generate a new sentenceID
@@ -142,9 +154,10 @@ def show_quiz_data(difficulty, no_questions, mode):
     # TODO
     update_dataframe()
 
-    quiz_df_html = [quiz_df.to_html(classes='data')]
+    global quiz_results
+    quiz_results = [quiz_results.to_html(classes='data')]
     return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions, mode=mode,
-                           quiz_df=quiz_df_html)
+                           quiz_df=quiz_results)
 
 
 @app.route("/settings", methods=["GET"])
