@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
 import string
-import scipy.stats as stats
+from helper_classes import User, Quiz
 
-lexicon = pd.DataFrame()
-language_proficiency = 3.741582
+lexicon = bool()
 
 
 # Import the dataframe with all sentences (as of now Lexicon)
@@ -32,7 +31,9 @@ def retrieve_all_correct_answers(sentenceID):
         data = import_lexicon()
     elif not lexicon:
         data = import_tatoeba()
+    print(lexicon)
     data = data.loc[data['sentenceID'] == sentenceID]
+    print(data)
     for _, row in data.iterrows():
         if row['lang'] == 'en':
             possible_answers.append(row['sentence_en'])
@@ -54,6 +55,10 @@ def generate_answer_options(questionID):
     multiple_choice_options = []
 
     all_correct_answers = retrieve_all_correct_answers(questionID)
+    print(questionID)
+    print(all_correct_answers)
+    print(multiple_choice_options)
+    print(all_correct_answers[0])
     multiple_choice_options.append(all_correct_answers[0])
 
     df = import_tatoeba()
@@ -71,58 +76,6 @@ def generate_answer_options(questionID):
     np.random.shuffle(multiple_choice_options)
     index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in all_correct_answers][0]
     return multiple_choice_options, index
-
-
-def select_quiz_words(difficulty, number_of_questions, mode):
-    """Select words that will be quizzed.
-
-    Create and return a small df of size (number_of_questions).
-    Mode currently is used as proxy for sentence/word questions,
-    will be changed in the future."""
-    # TODO
-    if mode == 'multiple choice':
-        df = import_tatoeba()
-    elif mode == 'open':
-        df = import_lexicon()
-
-    # A percentage along the df-length for where the mean of the distribution should lie
-    # More good questions thus should increase these values, and the proportion of the df
-    # that is considered known. The three etas should be linked at some stage, to ensure
-    # that the easy questions (after a lot of practicing) don't become more difficult than
-    # the moderate ones etc
-
-    #### Include language proficiency here
-    easy_eta = 0.01
-    moderate_eta = 0.05
-    difficult_eta = 0.10
-    # difficulty conditionals
-    if difficulty == 'easy':
-        lower = max(0, 0)  # should change (one should allow movement, other should stay 0 for certainty)
-        upper = len(df)-1
-        mu, sigma = language_proficiency*len(df)*easy_eta, 200  # mu should change
-
-    elif difficulty == 'moderate':
-        lower = max(0, 0)  # should change
-        upper = len(df)-1
-        mu, sigma = language_proficiency*len(df)*moderate_eta, 2000  # mu should change
-
-    elif difficulty == 'difficult':
-        lower = max(0,0)  # should change
-        upper = len(df)-1
-        mu, sigma = language_proficiency*len(df)*difficult_eta, 3000  # mu should change
-
-    X = stats.truncnorm(
-        a=(lower - mu) / sigma, b=(upper - mu) / sigma,
-        loc=mu, scale=sigma)
-    choice_list = list()
-
-    while len(choice_list) < number_of_questions:
-        single_sample = int(X.rvs(1))
-        if single_sample not in choice_list:
-            choice_list.append(single_sample)
-
-    chosen_words_df = df.iloc[choice_list]
-    return chosen_words_df
 
 
 def convert_answer(given_answer):
@@ -180,15 +133,6 @@ def calculate_error(quiz_answers_correct, difficulty):
     return error
 
 
-def update_language_proficiency(quiz_results, difficulty):
-    """Hier kom je dan, input quiz_results. Deze callt calculate_error.
-    Ooko callt ie import_tatoeba, en verandert de waarde naar ease*personal_ease. Multiplication with language proficiency happens at selection."""
-    error = calculate_error(quiz_results['correct'], difficulty)
-    global language_proficiency
-    language_proficiency = language_proficiency * (1 + (error*0.1))
-    print(f"Here is the eta {language_proficiency}")
-
-
 def update_dataframe(quiz_results):
     """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
     df = import_tatoeba()
@@ -217,7 +161,9 @@ def update_dataframe(quiz_results):
         print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
 
 
-def after_quiz(quiz_results, difficulty):
+def after_quiz(user, quiz_results, difficulty):
     """Method to call after quiz has finished. Write results, calculate new scores."""
-    update_language_proficiency(quiz_results, difficulty)
+    error = calculate_error(quiz_results['correct'], difficulty)
+    user.update_language_proficiency(error)
+
     #update_dataframe(quiz_results)

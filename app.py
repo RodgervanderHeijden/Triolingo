@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import select_quiz_words, check_answers, generate_answer_options, after_quiz
+from helper_functions import check_answers, generate_answer_options, after_quiz
 from helper_functions import convert_answer
 import pandas as pd
+from helper_classes import User, Quiz
 
 app = Flask(__name__)
 # temp variables, currently used as globals but to be rewritten as cookies or a class
@@ -10,6 +11,25 @@ answer_options = []
 index = 0
 quiz_df = pd.DataFrame()
 quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
+
+current_user = User(language_proficiency=1,
+                    name="Rodger")
+global current_quiz
+
+@app.route("/")
+def homepage():
+    """Homepage. Can use some visual shabam, but works."""
+    return render_template("homepage.html")
+
+
+@app.route("/settings", methods=["GET"])
+def select_settings():
+    """Form to select desired settings.
+
+    Quite standard page to select settings.
+    Potential to add a post-method, delete the action on the form,
+    and an if-statement here with redirect to confirm_settings, no prio though."""
+    return render_template("select_quiz_settings.html")
 
 
 @app.route('/quiz_confirmation', methods=["POST"])
@@ -21,16 +41,19 @@ def confirm_quiz_settings():
     though it might be mitigated by using globals, url args and even sessions.
     For now, it works and it's fine.
     Current_question_no has to be set to 0, otherwise the second quiz does not work."""
-    no_questions = int(request.form.get("amount"))
-    difficulty = request.form.get('difficulty')
-    mode = request.form.get("mode")
+    global current_quiz
+    current_quiz = Quiz(current_user,
+                        difficulty=request.form.get('difficulty'),
+                        no_questions=request.form.get('amount'),
+                        mode=request.form.get("mode"))
 
-    global current_question_no, quiz_results, quiz_df
+    global current_question_no, quiz_results
     current_question_no = 0
     quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
-    quiz_df = select_quiz_words(difficulty, no_questions, mode)
-    return render_template("quiz_confirmation.html", difficulty=difficulty,
-                           questions=no_questions, mode=mode)
+
+    current_quiz.create_quiz_df()
+    return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
+                           questions=current_quiz.no_questions, mode=current_quiz.mode)
 
 
 @app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
@@ -42,16 +65,14 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     The loop has two conditions; the first one is when the form does not (yet) have a text,
     i.e. no answer has been given yet, i.e. the user arrives from quiz_setting_confirmation.
     The quiz subdf get decided there and written to global."""
-    # Get from URL
-    no_questions = int(no_questions)
     given_answer = request.form.get('text', None)
     from_feedback_page = request.form.get('from_feedback_page', None)
     global current_question_no
     global quiz_results
 
-    while sum(quiz_results['correct']) < no_questions:
-        current_question = quiz_df.iloc[current_question_no]['sentence_pl']
-        sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
+    while sum(quiz_results['correct']) < current_quiz.no_questions:
+        current_question = current_quiz.quizzed_questions.iloc[current_question_no]['sentence_pl']
+        sentenceID = current_quiz.quizzed_questions.iloc[current_question_no]['sentenceID']
 
         # Two options exist:
         # A. the previous page is the settings, and thus you want to show a question
@@ -93,7 +114,7 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 # Don't update anything
                 previous_question_no = current_question_no
 
-            previous_question = quiz_df.iloc[previous_question_no]['sentence_pl']
+            previous_question = current_quiz.quizzed_questions.iloc[previous_question_no]['sentence_pl']
             return render_template("answer_feedback.html", given_answer=given_answer,
                                    current_question=previous_question, url=url,
                                    is_correct=is_correct)
@@ -105,27 +126,12 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
 def show_quiz_data(difficulty, no_questions, mode):
     """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
 
+    # TODO: write quiz results as Quiz.method
     global quiz_results
-    after_quiz(quiz_results, difficulty)
+    after_quiz(current_user, quiz_results, difficulty)
     quiz_results_html = [quiz_results.to_html(classes='data')]
     return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions, mode=mode,
                            quiz_df=quiz_results_html)
-
-
-@app.route("/settings", methods=["GET"])
-def select_settings():
-    """Form to select desired settings.
-
-    Quite standard page to select settings.
-    Potential to add a post-method, delete the action on the form,
-    and an if-statement here with redirect to confirm_settings, no prio though."""
-    return render_template("select_quiz_settings.html")
-
-
-@app.route("/")
-def homepage():
-    """Homepage. Can use some visual shabam, but works."""
-    return render_template("homepage.html")
 
 
 @app.route("/about")
