@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import string
-from helper_classes import User, Quiz
+from helper_classes import User, Quiz, Question
 
 lexicon = bool()
 
@@ -24,25 +24,7 @@ def import_tatoeba():
     return pd.read_csv("./backend/data/tatoeba/quiz_df.csv").sort_values(by=['sentence_ease'], ascending=False)
 
 
-def retrieve_all_correct_answers(sentenceID):
-    """Given a sentence ID, retrieve and return all other correct answers."""
-    possible_answers = []
-    if lexicon:
-        data = import_lexicon()
-    elif not lexicon:
-        data = import_tatoeba()
-    print(lexicon)
-    data = data.loc[data['sentenceID'] == sentenceID]
-    print(data)
-    for _, row in data.iterrows():
-        if row['lang'] == 'en':
-            possible_answers.append(row['sentence_en'])
-        elif row['lang'] == 'nl':
-            possible_answers.append(row['sentence_nl'])
-    return possible_answers
-
-
-def generate_answer_options(questionID):
+def generate_answer_options(questionID, current_quiz, question):
     """Generates three incorrect answer options for multiple choice questions.
 
     In case of multiple choice questions, three incorrect options have to be selected.
@@ -54,12 +36,12 @@ def generate_answer_options(questionID):
     Return both the already shuffled list with 4 answer options and the index of a correct one."""
     multiple_choice_options = []
 
-    all_correct_answers = retrieve_all_correct_answers(questionID)
+    question.generate_correct_answers()
     print(questionID)
-    print(all_correct_answers)
+    print(question.correct_answers)
     print(multiple_choice_options)
-    print(all_correct_answers[0])
-    multiple_choice_options.append(all_correct_answers[0])
+    print(question.correct_answers[0])
+    multiple_choice_options.append(question.correct_answers[0])
 
     df = import_tatoeba()
     three_random_numbers = np.random.choice(a=range(len(df)), size=3,
@@ -74,7 +56,7 @@ def generate_answer_options(questionID):
     for incorrect_answer in incorrect_answers:
         multiple_choice_options.append(incorrect_answer)
     np.random.shuffle(multiple_choice_options)
-    index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in all_correct_answers][0]
+    index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in question.correct_answers][0]
     return multiple_choice_options, index
 
 

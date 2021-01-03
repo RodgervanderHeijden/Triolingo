@@ -14,6 +14,9 @@ class User:
         self.lr_moderate = 1
         self.lr_difficult = 1
 
+        # len(database_backlog_of_quizzes)
+        self.quizID = 1
+
     def update_language_proficiency(self, error):
         self.language_proficiency = self.language_proficiency * (1 + error * 0.1)
 
@@ -41,6 +44,8 @@ class Quiz:
         self.no_questions = int(no_questions)
         self.mode = mode
         self.quizzed_questions = None
+        self.correct = 0
+        self.false = 0
 
     def create_quiz_df(self):
         # Return lower bound, upper bound, mu and sigma in that order
@@ -65,5 +70,43 @@ class Quiz:
         self.quizzed_questions = all_translated_sentences.iloc[choice_list]
 
 
-# miss create_quiz die dan df maakt met
-# | sentenceID | sentence_pl | correct_answers (including index) |
+class Question:
+    def __init__(self, current_quiz, current_question_no):
+        self.current_quiz = current_quiz
+        self.current_question_no = current_question_no
+        self.correct_answers = []
+        self.sentenceID = ""
+
+    def set_sentenceID(self, sentenceID):
+        self.sentenceID = sentenceID
+
+    def generate_correct_answers(self):
+        entire_database = pd.read_csv("./backend/data/tatoeba/quiz_df.csv", sep=',')
+        correct_rows = entire_database.loc[entire_database['sentenceID'] == self.sentenceID]
+        print(correct_rows)
+        possible_answers = []
+        for _, row in correct_rows.iterrows():
+            if row['lang'] == 'en':
+                possible_answers.append(row['sentence_en'])
+            elif row['lang'] == 'nl':
+                possible_answers.append(row['sentence_nl'])
+        self.correct_answers = possible_answers
+
+    def check_answers(self):
+        if True:
+            self.current_quiz.correct += 1
+            print(self.current_quiz.correct)
+            self.current_question_no += 1
+        elif False:
+            self.current_quiz.false += 1
+            print(self.current_quiz.correct)
+
+    # After each question, add sentence_pl, given answer and correct Bool to quiz results.
+    # Quiz results will be called in affter_quiz
+    def add_to_quiz_results(self, sentenceID, given_answer):
+        pass
+
+    # Na elke vraag de update aanvragen (in feedback scherm), diff = Quiz.diff
+    def update_personal_sentence_ease(self, is_correct, difficulty):
+        pass
+

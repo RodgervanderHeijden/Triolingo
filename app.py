@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect
 from helper_functions import check_answers, generate_answer_options, after_quiz
 from helper_functions import convert_answer
 import pandas as pd
-from helper_classes import User, Quiz
+from helper_classes import User, Quiz, Question
 
 app = Flask(__name__)
 # temp variables, currently used as globals but to be rewritten as cookies or a class
@@ -15,6 +15,7 @@ quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', '
 current_user = User(language_proficiency=1,
                     name="Rodger")
 global current_quiz
+global current_question
 
 @app.route("/")
 def homepage():
@@ -46,12 +47,14 @@ def confirm_quiz_settings():
                         difficulty=request.form.get('difficulty'),
                         no_questions=request.form.get('amount'),
                         mode=request.form.get("mode"))
+    current_quiz.create_quiz_df()
+
 
     global current_question_no, quiz_results
     current_question_no = 0
     quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
 
-    current_quiz.create_quiz_df()
+
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
@@ -70,23 +73,27 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     global current_question_no
     global quiz_results
 
-    while sum(quiz_results['correct']) < current_quiz.no_questions:
+    question = Question(current_quiz, 0)
+
+    #while sum(quiz_results['correct']) < current_quiz.no_questions:
+
+    while current_quiz.correct < current_quiz.no_questions:
         current_question = current_quiz.quizzed_questions.iloc[current_question_no]['sentence_pl']
         sentenceID = current_quiz.quizzed_questions.iloc[current_question_no]['sentenceID']
-
+        question.set_sentenceID(sentenceID)
         # Two options exist:
         # A. the previous page is the settings, and thus you want to show a question
         # B. the previous page is the screen after an answer has been given, and thus now you want a new question
         if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
             if mode == 'multiple choice':
                 global answer_options, index
-                answer_options, index = generate_answer_options(sentenceID)
-                return render_template("do_quiz.html", mode=mode,
+                answer_options, index = generate_answer_options(sentenceID, current_quiz, question)
+                return render_template("do_quiz.html", mode=current_quiz.mode,
                                        current_word=current_question, answer=given_answer,
                                        answer_option_1=answer_options[0], answer_option_2=answer_options[1],
                                        answer_option_3=answer_options[2], answer_option_4=answer_options[3])
             elif mode == 'open':
-                return render_template("do_quiz.html", mode=mode, current_word=current_question,
+                return render_template("do_quiz.html", mode=current_quiz.mode, current_word=current_question,
                                        answer=given_answer)
 
         # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
@@ -109,9 +116,11 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 # Update index and generate a new sentenceID
                 previous_question_no = current_question_no
                 current_question_no = current_question_no + 1
+                current_quiz.correct += 1
             # If incorrect, quiz the same question.
             else:
                 # Don't update anything
+                current_quiz.false += 1
                 previous_question_no = current_question_no
 
             previous_question = current_quiz.quizzed_questions.iloc[previous_question_no]['sentence_pl']
