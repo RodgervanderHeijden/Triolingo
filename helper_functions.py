@@ -125,6 +125,24 @@ def select_quiz_words(difficulty, number_of_questions, mode):
     return chosen_words_df
 
 
+def convert_answer(given_answer):
+    if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
+        # Is answer was given as letter, convert to numerical
+        if given_answer.lower() == 'a':
+            given_answer = 1
+        elif given_answer.lower() == 'b':
+            given_answer = 2
+        elif given_answer.lower() == 'c':
+            given_answer = 3
+        elif given_answer.lower() == 'd':
+            given_answer = 4
+        given_answer = int(given_answer)
+        # To convert to correct index, subtract one. This works both for the human-provided numbers
+        # and the just mapped numbers.
+        converted_answer = given_answer - 1
+        return converted_answer
+
+
 def check_answers(given_answer, quiz_df, sentenceID):
     """Check whether the user-provided answer is correct.
 

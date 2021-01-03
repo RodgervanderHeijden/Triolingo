@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect
 from helper_functions import select_quiz_words, check_answers, generate_answer_options, after_quiz
+from helper_functions import convert_answer
 import pandas as pd
 
 app = Flask(__name__)
@@ -20,15 +21,17 @@ def confirm_quiz_settings():
     though it might be mitigated by using globals, url args and even sessions.
     For now, it works and it's fine.
     Current_question_no has to be set to 0, otherwise the second quiz does not work."""
-    questions = int(request.form.get("amount"))
+    no_questions = int(request.form.get("amount"))
     difficulty = request.form.get('difficulty')
     mode = request.form.get("mode")
     global current_question_no
     current_question_no = 0
     global quiz_results
     quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
+    global quiz_df
+    quiz_df = select_quiz_words(difficulty, no_questions, mode)
     return render_template("quiz_confirmation.html", difficulty=difficulty,
-                           questions=questions, mode=mode)
+                           questions=no_questions, mode=mode)
 
 
 @app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
@@ -51,9 +54,7 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     global quiz_results
     while sum(quiz_results['correct']) < no_questions:
 
-        if (request.method == "POST") & (request.referrer[-18:] == '/quiz_confirmation'):
-            global quiz_df
-            quiz_df = select_quiz_words(difficulty, no_questions, mode)
+        if request.referrer[-18:] == '/quiz_confirmation':
             current_question = quiz_df.iloc[current_question_no]['sentence_pl']
             sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
             quiz_df_html = [quiz_df.to_html(classes='data')]
@@ -61,15 +62,12 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             if mode == 'multiple choice':
                 global answer_options, index
                 answer_options, index = generate_answer_options(sentenceID)
-                return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                       quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                       answer_option_1=answer_options[0],
-                                       answer_option_2=answer_options[1],
-                                       answer_option_3=answer_options[2],
-                                       answer_option_4=answer_options[3], )
+                return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode, current_word=current_question,
+                                       answer_option_1=answer_options[0], answer_option_2=answer_options[1],
+                                       answer_option_3=answer_options[2], answer_option_4=answer_options[3])
             elif mode == 'open':
-                return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                       quiz_df=quiz_df_html, mode=mode, current_word=current_question)
+                return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode, current_word=current_question,
+                                       answer=given_answer)
 
         else:
             # Two options exist:
@@ -82,25 +80,14 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
 
                 sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
                 if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
-                    # Is answer was given as letter, convert to numerical
-                    if given_answer.lower() == 'a':
-                        given_answer = 1
-                    elif given_answer.lower() == 'b':
-                        given_answer = 2
-                    elif given_answer.lower() == 'c':
-                        given_answer = 3
-                    elif given_answer.lower() == 'd':
-                        given_answer = 4
-                    # To convert to correct index, subtract one. This works both for the human-provided numbers
-                    # and the just mapped numbers.
-                    given_answer = int(given_answer)
-                    given_answer -= 1
-                    is_correct = bool(index == given_answer)
-                    given_answer = answer_options[given_answer]
+                    converted_answer = convert_answer(given_answer)
+                    is_correct = bool(index == converted_answer)
+                    given_answer = answer_options[converted_answer]
 
                 else:
                     is_correct = check_answers(given_answer, quiz_df, sentenceID)
 
+                # Update current question and add it to the quiz results df
                 current_question = quiz_df.iloc[current_question_no]['sentence_pl']
                 quiz_results = quiz_results.append({'sentenceID': sentenceID,
                                                     'Question': current_question,
@@ -130,16 +117,13 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                     sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
                     answer_options, index = generate_answer_options(sentenceID)
 
-                    return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                           quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                           answer=given_answer,
-                                           answer_options=answer_options,
+                    return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode,
+                                           current_word=current_question, answer=given_answer,
                                            answer_option_1=answer_options[0], answer_option_2=answer_options[1],
                                            answer_option_3=answer_options[2], answer_option_4=answer_options[3], )
                 elif mode == 'open':
-                    return render_template("do_quiz.html", difficulty=difficulty, no_questions=no_questions,
-                                           quiz_df=quiz_df_html, mode=mode, current_word=current_question,
-                                           answer=given_answer, )
+                    return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode,
+                                           current_word=current_question, answer=given_answer, )
 
     return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions, mode=mode))
 
