@@ -143,7 +143,7 @@ def convert_answer(given_answer):
         return converted_answer
 
 
-def check_answers(given_answer, quiz_df, sentenceID):
+def check_answers(given_answer, sentenceID):
     """Check whether the user-provided answer is correct.
 
     Given answer and the sentenceID, check whether it is correct.

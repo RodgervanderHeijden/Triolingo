@@ -24,11 +24,10 @@ def confirm_quiz_settings():
     no_questions = int(request.form.get("amount"))
     difficulty = request.form.get('difficulty')
     mode = request.form.get("mode")
-    global current_question_no
+
+    global current_question_no, quiz_results, quiz_df
     current_question_no = 0
-    global quiz_results
     quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
-    global quiz_df
     quiz_df = select_quiz_words(difficulty, no_questions, mode)
     return render_template("quiz_confirmation.html", difficulty=difficulty,
                            questions=no_questions, mode=mode)
@@ -47,83 +46,57 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     no_questions = int(no_questions)
     given_answer = request.form.get('text', None)
     from_feedback_page = request.form.get('from_feedback_page', None)
-
-    # Upon first visit of the route, no answer has yet been given
-    # Here a to be quizzed sub df gets selected and returned
     global current_question_no
     global quiz_results
+
     while sum(quiz_results['correct']) < no_questions:
+        current_question = quiz_df.iloc[current_question_no]['sentence_pl']
+        sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
 
-        if request.referrer[-18:] == '/quiz_confirmation':
-            current_question = quiz_df.iloc[current_question_no]['sentence_pl']
-            sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
-            quiz_df_html = [quiz_df.to_html(classes='data')]
-
+        # Two options exist:
+        # A. the previous page is the settings, and thus you want to show a question
+        # B. the previous page is the screen after an answer has been given, and thus now you want a new question
+        if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
             if mode == 'multiple choice':
                 global answer_options, index
                 answer_options, index = generate_answer_options(sentenceID)
-                return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode, current_word=current_question,
+                return render_template("do_quiz.html", mode=mode,
+                                       current_word=current_question, answer=given_answer,
                                        answer_option_1=answer_options[0], answer_option_2=answer_options[1],
                                        answer_option_3=answer_options[2], answer_option_4=answer_options[3])
             elif mode == 'open':
-                return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode, current_word=current_question,
+                return render_template("do_quiz.html", mode=mode, current_word=current_question,
                                        answer=given_answer)
 
-        else:
-            # Two options exist:
-            # A. the previous page is the quiz, and thus the request holds an answer
-            # B. the previous page is the screen after an answer has been given, and thus holds no new answer.
+        # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
+        elif given_answer is not None:
+            url = request.referrer
+            if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
+                converted_answer = convert_answer(given_answer)
+                is_correct = bool(index == converted_answer)
+                given_answer = answer_options[converted_answer]
+            else:
+                is_correct = check_answers(given_answer, sentenceID)
 
-            # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
-            if given_answer is not None:
-                url = request.referrer
+            quiz_results = quiz_results.append({'sentenceID': sentenceID,
+                                                'Question': current_question,
+                                                'Given answer': given_answer,
+                                                'correct': is_correct},
+                                               ignore_index=True)
+            # If correct: quiz the next question
+            if is_correct:
+                # Update index and generate a new sentenceID
+                previous_question_no = current_question_no
+                current_question_no = current_question_no + 1
+            # If incorrect, quiz the same question.
+            else:
+                # Don't update anything
+                previous_question_no = current_question_no
 
-                sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
-                if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
-                    converted_answer = convert_answer(given_answer)
-                    is_correct = bool(index == converted_answer)
-                    given_answer = answer_options[converted_answer]
-
-                else:
-                    is_correct = check_answers(given_answer, quiz_df, sentenceID)
-
-                # Update current question and add it to the quiz results df
-                current_question = quiz_df.iloc[current_question_no]['sentence_pl']
-                quiz_results = quiz_results.append({'sentenceID': sentenceID,
-                                                    'Question': current_question,
-                                                    'Given answer': given_answer,
-                                                    'correct': is_correct},
-                                                   ignore_index=True)
-                # If correct: quiz the next question
-                if is_correct:
-                    # Update index and generate a new sentenceID
-                    previous_question_no = current_question_no
-                    current_question_no = current_question_no + 1
-
-                # If incorrect, quiz the same question.
-                else:
-                    # Don't update anything
-                    previous_question_no = current_question_no
-
-                previous_question = quiz_df.iloc[previous_question_no]['sentence_pl']
-                return render_template("answer_feedback.html", given_answer=given_answer,
-                                       current_question=previous_question, url=url,
-                                       is_correct=is_correct)
-
-            elif (from_feedback_page is not None) & (given_answer is None):
-                quiz_df_html = [quiz_df.to_html(classes='data')]
-                current_question = quiz_df.iloc[current_question_no]['sentence_pl']
-                if mode == 'multiple choice':
-                    sentenceID = quiz_df.iloc[current_question_no]['sentenceID']
-                    answer_options, index = generate_answer_options(sentenceID)
-
-                    return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode,
-                                           current_word=current_question, answer=given_answer,
-                                           answer_option_1=answer_options[0], answer_option_2=answer_options[1],
-                                           answer_option_3=answer_options[2], answer_option_4=answer_options[3], )
-                elif mode == 'open':
-                    return render_template("do_quiz.html", quiz_df=quiz_df_html, mode=mode,
-                                           current_word=current_question, answer=given_answer, )
+            previous_question = quiz_df.iloc[previous_question_no]['sentence_pl']
+            return render_template("answer_feedback.html", given_answer=given_answer,
+                                   current_question=previous_question, url=url,
+                                   is_correct=is_correct)
 
     return redirect(url_for("show_quiz_data", difficulty=difficulty, no_questions=no_questions, mode=mode))
 
@@ -134,8 +107,6 @@ def show_quiz_data(difficulty, no_questions, mode):
 
     global quiz_results
     after_quiz(quiz_results, difficulty)
-
-    #global quiz_results
     quiz_results_html = [quiz_results.to_html(classes='data')]
     return render_template("after_quiz.html", difficulty=difficulty, no_questions=no_questions, mode=mode,
                            quiz_df=quiz_results_html)
