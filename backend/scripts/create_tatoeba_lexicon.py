@@ -50,7 +50,6 @@ def clean_and_store_results(df):
     df.drop(labels=['lang_left', 'lang_right',
                     'sentenceID_nl', 'sentenceID_en',
                     'matched_sentenceID'], axis=1, inplace=True)
-    print(df.columns)
     df.reset_index(drop=True, inplace=True, )
     df.to_csv('../data/tatoeba/tatoeba_sentences.csv', index=False)
 

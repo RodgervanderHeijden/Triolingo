@@ -24,42 +24,6 @@ def import_tatoeba():
     return pd.read_csv("./backend/data/tatoeba/quiz_df.csv").sort_values(by=['sentence_ease'], ascending=False)
 
 
-def generate_answer_options(questionID, current_quiz, question):
-    """Generates three incorrect answer options for multiple choice questions.
-
-    In case of multiple choice questions, three incorrect options have to be selected.
-    With just questionID, the first answer of all_correct_answers is taken (fewer args passed),
-    and three random numbers are chosen for the incorrect options. Theoretically, if a question
-    has multiple correct translations in the database, multiple options could be correct. However,
-    as evaluation takes this into account, it will also be evaluated correctly, and no tricky
-    edge case mitigation should be done to combat this unlikely event.
-    Return both the already shuffled list with 4 answer options and the index of a correct one."""
-    multiple_choice_options = []
-
-    question.generate_correct_answers()
-    print(questionID)
-    print(question.correct_answers)
-    print(multiple_choice_options)
-    print(question.correct_answers[0])
-    multiple_choice_options.append(question.correct_answers[0])
-
-    df = import_tatoeba()
-    three_random_numbers = np.random.choice(a=range(len(df)), size=3,
-                                         replace=False)
-    incorrect_answers = []
-    for _, row in df.iloc[three_random_numbers].iterrows():
-        if row['lang'] == 'en':
-            incorrect_answers.append(row['sentence_en'])
-        elif row['lang'] == 'nl':
-            incorrect_answers.append(row['sentence_nl'])
-
-    for incorrect_answer in incorrect_answers:
-        multiple_choice_options.append(incorrect_answer)
-    np.random.shuffle(multiple_choice_options)
-    index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in question.correct_answers][0]
-    return multiple_choice_options, index
-
-
 def convert_answer(given_answer):
     if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
         # Is answer was given as letter, convert to numerical
@@ -78,7 +42,7 @@ def convert_answer(given_answer):
         return converted_answer
 
 
-def check_answers(given_answer, sentenceID):
+def check_answers(given_answer, sentenceID, current_question):
     """Check whether the user-provided answer is correct.
 
     Given answer and the sentenceID, check whether it is correct.
@@ -86,7 +50,7 @@ def check_answers(given_answer, sentenceID):
     sentenceID, then call retrieve_all_correct_answers for that ID.
     If the provided answer is in the list of possible answers, it is
     correct (True), otherwise not (False). Return result."""
-    possible_answers = retrieve_all_correct_answers(sentenceID)
+    possible_answers = current_question.correct_answers
     remove_punctuation = str.maketrans("", "", string.punctuation)
     cleaned_given_answer = given_answer.lower().translate(remove_punctuation)
 
@@ -108,9 +72,9 @@ def expected_correct_ratio(difficulty):
         return 0.3
 
 
-def calculate_error(quiz_answers_correct, difficulty):
-    y_hat = expected_correct_ratio(difficulty)
-    score = sum(quiz_answers_correct)/len(quiz_answers_correct)
+def calculate_error(current_quiz):
+    y_hat = expected_correct_ratio(current_quiz.difficulty)
+    score = current_quiz.correct/(current_quiz.correct + current_quiz.incorrect)
     error = (score-y_hat)
     return error
 
@@ -143,9 +107,9 @@ def update_dataframe(quiz_results):
         print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
 
 
-def after_quiz(user, quiz_results, difficulty):
+def after_quiz(user, current_quiz):
     """Method to call after quiz has finished. Write results, calculate new scores."""
-    error = calculate_error(quiz_results['correct'], difficulty)
+    error = calculate_error(current_quiz)
     user.update_language_proficiency(error)
 
     #update_dataframe(quiz_results)
