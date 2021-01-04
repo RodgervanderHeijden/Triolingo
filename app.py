@@ -80,6 +80,7 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                                        answer_option_3=current_question.answer_options[2],
                                        answer_option_4=current_question.answer_options[3])
             elif current_quiz.mode == 'open':
+                current_question.generate_correct_answers()
                 return render_template("do_quiz.html", mode=current_quiz.mode,
                                        current_word=current_question.question_sentence, answer=given_answer)
 
@@ -104,11 +105,12 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 # Don't update anything
                 current_quiz.incorrect += 1
                 previous_question_no = current_quiz.current_question_no
+                current_question.generate_answer_options()
 
             previous_question = current_quiz.quizzed_questions.iloc[previous_question_no]['sentence_pl']
             return render_template("answer_feedback.html", given_answer=given_answer,
                                    current_question=previous_question, url=url,
-                                   is_correct=is_correct)
+                                   is_correct=is_correct, correct_answer=current_question.correct_answers[0])
 
     return redirect(url_for("show_quiz_data", difficulty=current_quiz.difficulty,
                             no_questions=current_quiz.no_questions, mode=current_quiz.mode))

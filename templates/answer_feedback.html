@@ -9,12 +9,17 @@
             <div class="col">
                 <div class="card shadow mb-4">
                     <div class="card-body">
-                        <h1>{{ is_correct }}</h1>
 
                         <p class="text-muted">You said that </p>
                         <h4><i>{{ current_question }}</i></h4>
                         <p class="text-muted">means </p>
                         <h4><i>{{ given_answer }}</i></h4>
+                        <p class="text-muted">That is</p>
+                        <h4><i>{{ is_correct }}</i></h4>
+                        {% if not is_correct %}
+                            <p class="text-muted">It should have been:</p>
+                            <h4><i>{{ correct_answer }}</i></h4>
+                        {% endif %}
 
                         <form method="POST" action="{{ url }}" >
                             <div class="form__fieldset">
