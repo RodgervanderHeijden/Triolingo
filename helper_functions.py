@@ -1,5 +1,8 @@
 import pandas as pd
 import string
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 lexicon = bool()
 
@@ -111,3 +114,52 @@ def after_quiz(user, current_quiz):
     user.update_language_proficiency(error)
 
     #update_dataframe(quiz_results)
+
+
+def write_inactivity_mail():
+    """Is fully functioning (though"""
+    sender_email = "redacted"
+    receiver_email = "redacted"
+    password = input("Type your password and press enter:")
+
+    message = MIMEMultipart("Inactivity")
+    message["Subject"] = "You've been inactive on Triolingo!"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    # Create the plain-text and HTML version of your message
+    text = """\
+    Hi,
+    According to our logs you've been slacking!
+    Get started with your Polish by clicking the button below:
+    Go to Triolingo!"""
+    html = """\
+    <html>
+        <body>
+            <h2>Hi,</h2>
+            <p>According to our logs you've been slacking!<br>
+            Get started with your Polish by clicking the button below:
+            </p>
+            <form action="127.0.0.1:5000">
+                <input type="submit" value="Go to Triolingo!" />
+            </form>
+        </body>
+    </html>
+    """
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+    message.attach(part2)
+
+    # Create secure connection with server and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(
+            sender_email, receiver_email, message.as_string()
+        )

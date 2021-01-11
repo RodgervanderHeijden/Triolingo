@@ -3,9 +3,6 @@ from helper_functions import after_quiz, convert_answer
 from helper_classes import User, Quiz, Question
 
 triolingo_app = Flask(__name__)
-answer_options = []
-#quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
-
 current_user = User(language_proficiency=1,
                     name="Rodger")
 global current_quiz
@@ -28,13 +25,13 @@ def select_settings():
 
 @triolingo_app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
-    """Confirm quiz settings and reroute to quiz with arguments in url.
+    """Confirm quiz settings and reroute to quiz.
 
     A page to confirm the selected quiz settings (from form of settings page).
     Initially required to solve the issue of having two forms in the quiz page,
-    though it might be mitigated by using globals, url args and even sessions.
-    For now, it works and it's fine.
-    Current_question_no has to be set to 0, otherwise the second quiz does not work."""
+    though not required anymore because of classes. However, pre-quiz an overview
+    of the to-be-quizzed questions may still be displayed, and thus this page for
+    now remains."""
     global current_quiz
     current_quiz = Quiz(current_user,
                         difficulty=request.form.get('difficulty'),
@@ -45,15 +42,14 @@ def confirm_quiz_settings():
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
 
-@triolingo_app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
-def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
+@triolingo_app.route("/quiz/", methods=["POST"])
+def quiz_page():
     """The quiz page.
 
     The beefy page where the quiz actually occurs. Takes in three args in URL.
     While the number of questions hasn't been reached, it goes in the loop, otherwise redirect.
-    The loop has two conditions; the first one is when the form does not (yet) have a text,
-    i.e. no answer has been given yet, i.e. the user arrives from quiz_setting_confirmation.
-    The quiz subdf get decided there and written to global."""
+    The loop has two conditions; either no answer has been given and thus a question will be displayed,
+    or an answer has been given, and thus a question feedback page will be displayed."""
     given_answer = request.form.get('text', None)
     from_feedback_page = request.form.get('from_feedback_page', None)
 
