@@ -37,8 +37,9 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <h1>Your quiz</h1>
-                        {% if mode=='Words' %}
-                            <p>What does <i>{{ current_word }}</i> mean?</p>
+                        {% if mode=='open' %}
+                            <p class="text-muted">What does this word mean?</p>
+                            <h4><i>{{ current_word }}</i></h4>
                         {% else %}
                             <p class="text-muted">What does this sentence mean?</p>
                             <h4><i>{{ current_word }}</i></h4>
