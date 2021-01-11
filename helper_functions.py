@@ -1,7 +1,5 @@
 import pandas as pd
-import numpy as np
 import string
-from helper_classes import User, Quiz, Question
 
 lexicon = bool()
 
@@ -78,7 +76,7 @@ def calculate_error(current_quiz):
     error = (score-y_hat)
     return error
 
-
+# Doesn't work yet.
 def update_dataframe(quiz_results):
     """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
     df = import_tatoeba()

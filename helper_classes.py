@@ -1,6 +1,7 @@
 import pandas as pd
 import scipy.stats as stats
 import numpy as np
+import string
 
 
 class User:
@@ -136,12 +137,15 @@ class Question:
         self.correct_index = index
         self.answer_options = multiple_choice_options
 
-    def check_answers(self):
-        if True:
-            self.current_quiz.correct += 1
-            self.current_quiz.current_question_no += 1
-        elif False:
-            self.current_quiz.false += 1
+    def check_answers(self, given_answer):
+        remove_punctuation = str.maketrans("", "", string.punctuation)
+        cleaned_given_answer = given_answer.lower().translate(remove_punctuation)
+        cleaned_correct_answers = []
+        for possible_answer in self.correct_answers:
+            # Using the same remove_punctuation translation as defined above
+            cleaned_answer = possible_answer.lower().translate(remove_punctuation)
+            cleaned_correct_answers.append(cleaned_answer)
+        return cleaned_given_answer in cleaned_correct_answers
 
     # After each question, add sentence_pl, given answer and correct Bool to quiz results.
     # Quiz results will be called in after_quiz

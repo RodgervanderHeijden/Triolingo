@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import check_answers, after_quiz
-from helper_functions import convert_answer
-import pandas as pd
+from helper_functions import after_quiz, convert_answer
 from helper_classes import User, Quiz, Question
 
-app = Flask(__name__)
+triolingo_app = Flask(__name__)
 answer_options = []
 #quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
 
@@ -12,13 +10,13 @@ current_user = User(language_proficiency=1,
                     name="Rodger")
 global current_quiz
 
-@app.route("/")
+@triolingo_app.route("/")
 def homepage():
     """Homepage. Can use some visual shabam, but works."""
     return render_template("homepage.html")
 
 
-@app.route("/settings", methods=["GET"])
+@triolingo_app.route("/settings", methods=["GET"])
 def select_settings():
     """Form to select desired settings.
 
@@ -28,7 +26,7 @@ def select_settings():
     return render_template("select_quiz_settings.html")
 
 
-@app.route('/quiz_confirmation', methods=["POST"])
+@triolingo_app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
     """Confirm quiz settings and reroute to quiz with arguments in url.
 
@@ -47,7 +45,7 @@ def confirm_quiz_settings():
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
 
-@app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
+@triolingo_app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
 def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
     """The quiz page.
 
@@ -92,32 +90,29 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
                 is_correct = bool(current_question.correct_index == converted_answer)
                 given_answer = current_question.answer_options[converted_answer]
             else:
-                is_correct = check_answers(given_answer, sentenceID, current_question)
+                is_correct = current_question.check_answers(given_answer)
 
             current_question.add_to_quiz_results(given_answer, is_correct,)
+            previous_question_no = current_quiz.current_question_no
             # If correct: quiz the next question
             if is_correct:
-                previous_question_no = current_quiz.current_question_no
-                current_quiz.current_question_no = current_quiz.current_question_no + 1
                 current_quiz.correct += 1
+                current_quiz.current_question_no = current_quiz.current_question_no + 1
             # If incorrect, quiz the same question.
             else:
                 # Don't update anything
                 current_quiz.incorrect += 1
-                previous_question_no = current_quiz.current_question_no
-                current_question.generate_answer_options()
 
             previous_question = current_quiz.quizzed_questions.iloc[previous_question_no]['sentence_pl']
             return render_template("answer_feedback.html", given_answer=given_answer,
                                    current_question=previous_question, url=url,
                                    is_correct=is_correct, correct_answer=current_question.correct_answers[0])
 
-    return redirect(url_for("show_quiz_data", difficulty=current_quiz.difficulty,
-                            no_questions=current_quiz.no_questions, mode=current_quiz.mode))
+    return redirect(url_for("show_quiz_data"))
 
 
-@app.route("/after_quiz/<difficulty>/<no_questions>/<mode>/", methods=["GET", "POST"])
-def show_quiz_data(difficulty, no_questions, mode):
+@triolingo_app.route("/after_quiz/", methods=["GET", "POST"])
+def show_quiz_data():
     """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
     after_quiz(current_user, current_quiz)
     quiz_results_html = [current_quiz.quiz_results.to_html(classes='data')]
@@ -126,17 +121,17 @@ def show_quiz_data(difficulty, no_questions, mode):
                            quiz_df=quiz_results_html)
 
 
-@app.route("/about")
+@triolingo_app.route("/about")
 def about():
     """Basic about page."""
     return render_template("about_triolingo.html")
 
 
-@app.route("/contact")
+@triolingo_app.route("/contact")
 def contact():
     """Basic about page."""
     return render_template("contact.html")
 
 
 if __name__ == '__main__':
-    app.run()
+    triolingo_app.run()
