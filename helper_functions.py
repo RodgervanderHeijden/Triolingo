@@ -3,6 +3,9 @@ import string
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import codecs
+import csv
+from datetime import datetime
 
 lexicon = bool()
 
@@ -79,6 +82,7 @@ def calculate_error(current_quiz):
     error = (score-y_hat)
     return error
 
+
 # Doesn't work yet.
 def update_dataframe(quiz_results):
     """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
@@ -108,15 +112,41 @@ def update_dataframe(quiz_results):
         print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
 
 
+def add_to_quiz_log(quiz):
+    """Store the quiz into the logs, convert everything into a list."""
+
+    sentenceIDs = quiz.quiz_results['sentenceID'].tolist()
+    questions = quiz.quiz_results['Question'].tolist()
+    given_answers = quiz.quiz_results['Given answer'].tolist()
+    result = quiz.quiz_results['correct'].tolist()
+    current_time = datetime.now()
+    difficulty = quiz.difficulty
+    mode = quiz.mode
+
+    with codecs.open(r"./backend/data/my_data/quiz_log.csv", 'r', 'utf-8') as f:
+        quiz_logs_reader = csv.reader(f, delimiter=";", )
+        id = len(pd.DataFrame(quiz_logs_reader))
+        f.close()
+    quizID = 101 + id
+    last_quiz = [quizID, sentenceIDs, questions, given_answers, result, current_time, difficulty, mode]
+
+    with codecs.open(r"./backend/data/my_data/quiz_log.csv", 'a', 'utf-8') as f:
+        csv_writer = csv.writer(f, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL,)
+        csv_writer.writerow(last_quiz)
+        f.close()
+
+
 def after_quiz(user, current_quiz):
     """Method to call after quiz has finished. Write results, calculate new scores."""
     error = calculate_error(current_quiz)
     user.update_language_proficiency(error)
+    add_to_quiz_log(current_quiz)
+    #update_dataframe(datetime.now())
 
     #update_dataframe(quiz_results)
 
 
-def write_inactivity_mail():
+def update_inactivity_mail():
     """Is fully functioning (though"""
     sender_email = "redacted"
     receiver_email = "redacted"
