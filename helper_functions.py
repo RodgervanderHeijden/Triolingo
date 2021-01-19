@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 import codecs
 import csv
 from datetime import datetime
+from databases import quiz_logs
 
 lexicon = bool()
 
@@ -119,16 +120,15 @@ def add_to_quiz_log(quiz):
     questions = quiz.quiz_results['Question'].tolist()
     given_answers = quiz.quiz_results['Given answer'].tolist()
     result = quiz.quiz_results['correct'].tolist()
-    current_time = datetime.now()
+    time_of_quiz = datetime.now()
     difficulty = quiz.difficulty
     mode = quiz.mode
 
     with codecs.open(r"./backend/data/my_data/quiz_log.csv", 'r', 'utf-8') as f:
         quiz_logs_reader = csv.reader(f, delimiter=";", )
         id = len(pd.DataFrame(quiz_logs_reader))
-        f.close()
     quizID = 101 + id
-    last_quiz = [quizID, sentenceIDs, questions, given_answers, result, current_time, difficulty, mode]
+    last_quiz = [quizID, sentenceIDs, questions, given_answers, result, time_of_quiz, difficulty, mode]
 
     with codecs.open(r"./backend/data/my_data/quiz_log.csv", 'a', 'utf-8') as f:
         csv_writer = csv.writer(f, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL,)
@@ -141,6 +141,8 @@ def after_quiz(user, current_quiz):
     error = calculate_error(current_quiz)
     user.update_language_proficiency(error)
     add_to_quiz_log(current_quiz)
+    quiz_logs.add_new_quiz(current_quiz)
+
     #update_dataframe(datetime.now())
 
     #update_dataframe(quiz_results)
