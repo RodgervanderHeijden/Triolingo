@@ -3,9 +3,9 @@ from helper_functions import after_quiz, convert_answer
 from helper_classes import User, Quiz, Question
 
 triolingo_app = Flask(__name__)
-current_user = User(language_proficiency=1,
-                    name="Rodger")
+current_user = User(name="Rodger")
 global current_quiz
+
 
 @triolingo_app.route("/")
 def homepage():

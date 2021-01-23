@@ -18,7 +18,7 @@ dtype_dict = {'quizID': 'INTEGER',
 INSERT_QUIZ = "INSERT INTO quizzes (sentenceIDs, questions, given_answers, " \
               "result, time_of_quiz, difficulty, mode) VALUES (?, ?, ?, ?, ?, ?, ?);"
 
-pd.set_option('display.width', 240)
+pd.set_option('display.width', 160)
 pd.set_option('display.max_columns', 10)
 
 
@@ -41,9 +41,6 @@ def initialize_table():
     df.to_sql(name='quizzes', con=conn, if_exists='replace',
               index=False, dtype=dtype_dict)
 
-    # df_new = pd.read_sql('SELECT * FROM quizzes', con=conn)
-    # print(eval(df_new['sentenceIDs'][0])[0])
-
 
 def add_new_quiz(quiz):
     sentenceIDs = quiz.quiz_results['sentenceID'].tolist()
@@ -58,4 +55,9 @@ def add_new_quiz(quiz):
     with conn:
         conn.execute(INSERT_QUIZ, (str(sentenceIDs), str(questions), str(given_answers), str(result), time_of_quiz, difficulty, mode,))
         df_new = pd.read_sql('SELECT rowid, * FROM quizzes', con=conn)
-        print(df_new)
+
+
+def return_quiz_logs():
+    conn = connect_quiz()
+    with conn:
+        return pd.read_sql('SELECT * FROM quizzes', con=conn)

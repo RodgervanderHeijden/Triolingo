@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 import codecs
 import csv
 from datetime import datetime
-from databases import quiz_logs
+from databases import quiz_logs, users
 
 lexicon = bool()
 
@@ -113,39 +113,11 @@ def update_dataframe(quiz_results):
         print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
 
 
-def add_to_quiz_log(quiz):
-    """Store the quiz into the logs, convert everything into a list."""
-
-    sentenceIDs = quiz.quiz_results['sentenceID'].tolist()
-    questions = quiz.quiz_results['Question'].tolist()
-    given_answers = quiz.quiz_results['Given answer'].tolist()
-    result = quiz.quiz_results['correct'].tolist()
-    time_of_quiz = datetime.now()
-    difficulty = quiz.difficulty
-    mode = quiz.mode
-
-    with codecs.open(r"./backend/data/my_data/quiz_log.csv", 'r', 'utf-8') as f:
-        quiz_logs_reader = csv.reader(f, delimiter=";", )
-        id = len(pd.DataFrame(quiz_logs_reader))
-    quizID = 101 + id
-    last_quiz = [quizID, sentenceIDs, questions, given_answers, result, time_of_quiz, difficulty, mode]
-
-    with codecs.open(r"./backend/data/my_data/quiz_log.csv", 'a', 'utf-8') as f:
-        csv_writer = csv.writer(f, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL,)
-        csv_writer.writerow(last_quiz)
-        f.close()
-
-
 def after_quiz(user, current_quiz):
     """Method to call after quiz has finished. Write results, calculate new scores."""
     error = calculate_error(current_quiz)
-    user.update_language_proficiency(error)
-    add_to_quiz_log(current_quiz)
     quiz_logs.add_new_quiz(current_quiz)
-
-    #update_dataframe(datetime.now())
-
-    #update_dataframe(quiz_results)
+    user.update_user_data(error, current_quiz.difficulty)
 
 
 def update_inactivity_mail():

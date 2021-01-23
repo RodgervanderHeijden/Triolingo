@@ -38,8 +38,9 @@ with conn:
     df_new = pd.read_sql('SELECT * FROM personal_ease', con=conn)
     #print(df_new)
 
+
 # change personal sentence ease hier
-def change_personal_sentence_ease():
+def change_personal_sentence_ease(quiz, ):
     conn = connect_personal_sentences()
     with conn:
         multi_factor = 1

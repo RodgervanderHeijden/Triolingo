@@ -2,35 +2,28 @@ import pandas as pd
 import scipy.stats as stats
 import numpy as np
 import string
+from databases import users
 
 
 class User:
     def __init__(self,
-                 language_proficiency,
                  name="Rodger",
                  ):
-        self.language_proficiency = language_proficiency
         self.name = name,
+        user_data = users.return_user_data(name)
 
-        self.lr_easy = 1
-        self.lr_moderate = 1
-        self.lr_difficult = 1
+        self.name = str(user_data['user_name'].values[0])
+        self.language_proficiency = float(user_data['language_proficiency'])
+        self.lr_easy = float(user_data['lr_easy'])
+        self.lr_moderate = float(user_data['lr_moderate'])
+        self.lr_difficult = float(user_data['lr_difficult'])
 
-        # len(database_backlog_of_quizzes)
-        self.quizID = 1
-
-    def update_language_proficiency(self, error):
-        self.language_proficiency = self.language_proficiency * (1 + error * 0.1)
-
-    def update_personal_learning_rate(self, difficulty_setting, error):
-        if difficulty_setting == "easy":
-            self.lr_easy = self.lr_easy * (self.lr_easy * (1 + 0.1 * error))
-        elif difficulty_setting == "moderate":
-            self.lr_moderate = self.lr_moderate * (self.lr_moderate * (1 + 0.1 * error))
-        elif difficulty_setting == "difficult":
-            self.lr_difficult = self.lr_difficult * (self.lr_difficult * (1 + 0.1 * error))
-        else:
-            return AssertionError
+    def update_user_data(self, error, quiz_difficulty):
+        updated_values = users.update_user_info(self, error, quiz_difficulty)
+        self.language_proficiency = float(updated_values['language_proficiency'])
+        self.lr_easy = float(updated_values['lr_easy'])
+        self.lr_moderate = float(updated_values['lr_moderate'])
+        self.lr_difficult = float(updated_values['lr_difficult'])
 
 
 class Quiz:
