@@ -33,10 +33,19 @@ def confirm_quiz_settings():
     of the to-be-quizzed questions may still be displayed, and thus this page for
     now remains."""
     global current_quiz
-    current_quiz = Quiz(current_user,
-                        difficulty=request.form.get('difficulty'),
-                        no_questions=request.form.get('amount'),
-                        mode=request.form.get("mode"))
+    try: # If after a quiz the "repeat with same settings" button is chosen, no args will be passed (ie NoneType)
+        current_quiz = Quiz(current_user,
+                            difficulty=request.form.get('difficulty'),
+                            no_questions=request.form.get('amount'),
+                            mode=request.form.get("mode"))
+    except TypeError:
+        difficulty = current_quiz.difficulty
+        no_questions = current_quiz.no_questions
+        mode = current_quiz.mode
+        current_quiz = Quiz(current_user,
+                            difficulty=difficulty,
+                            no_questions=no_questions,
+                            mode=mode)
     current_quiz.create_quiz_df()
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)

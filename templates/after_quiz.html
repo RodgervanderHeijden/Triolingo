@@ -14,6 +14,13 @@
                         <p>Lorem ipsum.</p>
 
                         <p>You have opted for <i>{{ no_questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
+
+                        <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
+                            <div class="form__fieldset">
+                                <button type="submit" class="border btn-lg btn-outline-primary rightAlign" autofocus>Repeat with same settings</button>
+                            </div>
+                        </form>
+
                     </div>
                 </div>
 
