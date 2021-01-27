@@ -21,7 +21,7 @@ def initialize_table():
     """Initialize the table and fill it with the earlier data. Should never run again."""
     with codecs.open(r"../backend/data/tatoeba/quiz_df.csv", 'r', 'utf-8') as f:
         quiz_logs_reader = csv.reader(f, delimiter=",", )
-        next(quiz_logs_reader, None) # to skip over the first row containing column names
+        next(quiz_logs_reader, None)  # to skip over the first row containing column names
         df = pd.DataFrame(quiz_logs_reader)
         df.columns = ['sentenceID', 'sentence_pl', 'sentence_en', 'sentence_nl', 'lang',
                       'words_in_sentence', 'sentence_ease', 'personal_sentence_ease']
@@ -33,6 +33,7 @@ def initialize_table():
 
 
 def return_chosen_sentenceIDs(list_chosen_sentence_rownumbers):
+    """Given a list of indices (not rowid!), order db by difficulty and select those indices."""
     conn = connect_personal_sentences()
     with conn:
         result_set = conn.execute(
@@ -57,6 +58,7 @@ def get_question_sentence(sentenceID):
 
 
 def select_answer_sentence(df):
+    """Take the English sentence in case of English metadata, otherwise Dutch."""
     list_with_answers = []
     for _, row in df.iterrows():
         if row['language'] == 'en':
@@ -67,6 +69,7 @@ def select_answer_sentence(df):
 
 
 def get_answer_options(sentenceID):
+    """Take all correct sentences and randomly pick three incorrect ones."""
     conn = connect_personal_sentences()
     with conn:
         correct_options = conn.execute('SELECT sentence_en, sentence_nl, lang '

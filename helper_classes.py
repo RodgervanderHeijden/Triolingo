@@ -20,6 +20,7 @@ class User:
         self.lr_difficult = float(user_data['lr_difficult'])
 
     def update_user_data(self, error, quiz_difficulty):
+        """Update the language proficiency and learning rates of the user."""
         updated_values = users.update_user_info(self, error, quiz_difficulty)
         self.language_proficiency = float(updated_values['language_proficiency'])
         self.lr_easy = float(updated_values['lr_easy'])
@@ -47,6 +48,7 @@ class Quiz:
         self.sentenceIDs = []
 
     def create_quiz_df(self):
+        """Create a normal-like curve with truncation for weighted question selection."""
         # Return lower bound, upper bound, mu and sigma in that order
         lower, upper = max(0, 0), 60039
         if self.difficulty == "easy":
@@ -119,6 +121,7 @@ class Question:
     # After each question, add sentence_pl, given answer and correct Bool to quiz results.
     # Quiz results will be called in after_quiz
     def add_to_quiz_results(self, given_answer, is_correct):
+        """Add metadata to quiz_results dataframe, a dataframe during a quiz. Will be stored in db on finish."""
         self.current_quiz.quiz_results = self.current_quiz.quiz_results.append({'sentenceID': self.sentenceID,
                                                                                 'Question': self.question_sentence,
                                                                                 'Given answer': given_answer,
