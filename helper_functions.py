@@ -1,27 +1,14 @@
-import pandas as pd
 import string
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from databases import quiz_logs, personal_ease
 
-lexicon = bool()
 
-
-# Import the dataframe with all sentences (as of now Lexicon)
-# TODO: change this to include the entire corpus of tatoeba or CLARIN
+# Import the dataframe with all sentences
+# TODO: change this to include the entire corpus of CLARIN
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
-def import_lexicon():
-    """Import and return the own data (open questions)."""
-    global lexicon
-    lexicon = True
-    return pd.read_csv("./backend/data/my_data/clean_lexicon.csv", sep=';')
-
-
-def import_tatoeba():
-    """Import and return the tatoeba data (multiple choice)."""
-    global lexicon
-    lexicon = False
-    return pd.read_csv("./backend/data/tatoeba/quiz_df.csv").sort_values(by=['sentence_ease'], ascending=False)
-
-
 def convert_answer(given_answer):
     if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
         # Is answer was given as letter, convert to numerical
@@ -76,38 +63,60 @@ def calculate_error(current_quiz):
     error = (score-y_hat)
     return error
 
-# Doesn't work yet.
-def update_dataframe(quiz_results):
-    """Stores the quiz (meta)data to the appropriate locations. To be implemented."""
-    df = import_tatoeba()
-    for i, row in quiz_results.iterrows():
-        print(df.loc[df['sentenceID'] == row['sentenceID']])
-        data_row_index = df.loc[df['sentenceID'] == row['sentenceID']].index
-        #print(data_row_index)
-        print(f"data_row_index {data_row_index}")
-        print(df.iloc[data_row_index])
-        print("HIERBOVEN data row index in df iloc, hieronder de value")
-        print(df.iloc[data_row_index]['personal_sentence_ease'])
-        print("Hieronder dan weer een probeerseltje")
-        print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
-
-        if quiz_results['correct'][i]:
-            df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'] = (
-                                      df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease']) * 1.25
-            #df.at[data_row_index, 'personal_sentence_ease'] = (df.iloc[data_row_index]['personal_sentence_ease'].value) * 1.20
-            print("hierfaga")
-        else:
-            df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'] = (
-                                      df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease']) * 0.80
-#            df.at[data_row_index, 'personal_sentence_ease'] = df.iloc[data_row_index]['personal_sentence_ease'] * 0.80
-            print("daraega")
-        print(df.loc[data_row_index]['personal_sentence_ease'])
-        print(df.loc[df['sentenceID'] == row['sentenceID']]['personal_sentence_ease'])
-
 
 def after_quiz(user, current_quiz):
     """Method to call after quiz has finished. Write results, calculate new scores."""
     error = calculate_error(current_quiz)
-    user.update_language_proficiency(error)
+    quiz_logs.add_new_quiz(current_quiz)
+    user.update_user_data(error, current_quiz.difficulty)
+    personal_ease.update_personal_sentence_ease(current_quiz.quiz_results)
 
-    #update_dataframe(quiz_results)
+
+# Functional in isolation, no implementation done.
+def update_inactivity_mail():
+    """Is fully functioning (though"""
+    sender_email = "redacted"
+    receiver_email = "redacted"
+    password = input("Type your password and press enter:")
+
+    message = MIMEMultipart("Inactivity")
+    message["Subject"] = "You've been inactive on Triolingo!"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    # Create the plain-text and HTML version of your message
+    text = """\
+    Hi,
+    According to our logs you've been slacking!
+    Get started with your Polish by clicking the button below:
+    Go to Triolingo!"""
+    html = """\
+    <html>
+        <body>
+            <h2>Hi,</h2>
+            <p>According to our logs you've been slacking!<br>
+            Get started with your Polish by clicking the button below:
+            </p>
+            <form action="127.0.0.1:5000">
+                <input type="submit" value="Go to Triolingo!" />
+            </form>
+        </body>
+    </html>
+    """
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+    message.attach(part2)
+
+    # Create secure connection with server and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(
+            sender_email, receiver_email, message.as_string()
+        )

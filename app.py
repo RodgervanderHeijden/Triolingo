@@ -3,12 +3,9 @@ from helper_functions import after_quiz, convert_answer
 from helper_classes import User, Quiz, Question
 
 triolingo_app = Flask(__name__)
-answer_options = []
-#quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
-
-current_user = User(language_proficiency=1,
-                    name="Rodger")
+current_user = User(name="Rodger")
 global current_quiz
+
 
 @triolingo_app.route("/")
 def homepage():
@@ -28,13 +25,13 @@ def select_settings():
 
 @triolingo_app.route('/quiz_confirmation', methods=["POST"])
 def confirm_quiz_settings():
-    """Confirm quiz settings and reroute to quiz with arguments in url.
+    """Confirm quiz settings and reroute to quiz.
 
     A page to confirm the selected quiz settings (from form of settings page).
     Initially required to solve the issue of having two forms in the quiz page,
-    though it might be mitigated by using globals, url args and even sessions.
-    For now, it works and it's fine.
-    Current_question_no has to be set to 0, otherwise the second quiz does not work."""
+    though not required anymore because of classes. However, pre-quiz an overview
+    of the to-be-quizzed questions may still be displayed, and thus this page for
+    now remains."""
     global current_quiz
     current_quiz = Quiz(current_user,
                         difficulty=request.form.get('difficulty'),
@@ -45,15 +42,14 @@ def confirm_quiz_settings():
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
 
-@triolingo_app.route("/quiz/<difficulty>/<no_questions>/<mode>/", methods=["POST"])
-def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
+@triolingo_app.route("/quiz/", methods=["POST"])
+def quiz_page():
     """The quiz page.
 
     The beefy page where the quiz actually occurs. Takes in three args in URL.
     While the number of questions hasn't been reached, it goes in the loop, otherwise redirect.
-    The loop has two conditions; the first one is when the form does not (yet) have a text,
-    i.e. no answer has been given yet, i.e. the user arrives from quiz_setting_confirmation.
-    The quiz subdf get decided there and written to global."""
+    The loop has two conditions; either no answer has been given and thus a question will be displayed,
+    or an answer has been given, and thus a question feedback page will be displayed."""
     given_answer = request.form.get('text', None)
     from_feedback_page = request.form.get('from_feedback_page', None)
 
@@ -62,13 +58,13 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
         current_question = Question(current_quiz)
 
     while current_quiz.correct < current_quiz.no_questions:
-        sentenceID = current_quiz.quizzed_questions.iloc[current_quiz.current_question_no]['sentenceID']
-        current_question.set_sentenceID(sentenceID)
+        sentenceID = int(current_quiz.sentenceIDs[current_quiz.current_question_no])
         # Two options exist:
         # A. the previous page is the settings, and thus you want to show a question
         # B. the previous page is the screen after an answer has been given, and thus now you want a new question
         if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
-            current_question.set_question_sentence()
+            current_question.set_sentenceID(sentenceID)
+            current_question.set_question_sentence(sentenceID)
             if current_quiz.mode == 'multiple choice':
                 current_question.generate_answer_options()
                 return render_template("do_quiz.html", mode=current_quiz.mode,
@@ -97,15 +93,17 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
             # If correct: quiz the next question
             if is_correct:
                 current_quiz.correct += 1
-                current_quiz.current_question_no = current_quiz.current_question_no + 1
+                current_quiz.current_question_no += 1
             # If incorrect, quiz the same question.
             else:
                 # Don't update anything
                 current_quiz.incorrect += 1
 
-            previous_question = current_quiz.quizzed_questions.iloc[previous_question_no]['sentence_pl']
+            previous_question_ID = current_quiz.sentenceIDs[previous_question_no]
+            current_question.set_sentenceID(previous_question_ID)
+            previous_question = current_question.question_sentence
             return render_template("answer_feedback.html", given_answer=given_answer,
-                                   current_question=previous_question, url=url,
+                                   previous_question=previous_question, url=url,
                                    is_correct=is_correct, correct_answer=current_question.correct_answers[0])
 
     return redirect(url_for("show_quiz_data"))
@@ -115,7 +113,9 @@ def quiz_page(difficulty="easy", no_questions=10, mode='Sentence'):
 def show_quiz_data():
     """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
     after_quiz(current_user, current_quiz)
-    quiz_results_html = [current_quiz.quiz_results.to_html(classes='data')]
+    render_df = current_quiz.quiz_results[['Question', 'Given answer', 'correct']]
+    render_df.columns = ['Polish sentence', 'Your answer', 'Correct?']
+    quiz_results_html = [render_df.to_html(index=False, classes='data')]
     return render_template("after_quiz.html", difficulty=current_quiz.difficulty,
                            no_questions=current_quiz.no_questions, mode=current_quiz.mode,
                            quiz_df=quiz_results_html)

@@ -2,35 +2,30 @@ import pandas as pd
 import scipy.stats as stats
 import numpy as np
 import string
+from databases import users, personal_ease
 
 
 class User:
     def __init__(self,
-                 language_proficiency,
                  name="Rodger",
                  ):
-        self.language_proficiency = language_proficiency
-        self.name = name,
+        self.name = name
+        user_data = users.return_user_data(name)
+        print(user_data)
 
-        self.lr_easy = 1
-        self.lr_moderate = 1
-        self.lr_difficult = 1
+        self.name = str(user_data['user_name'].values[0])
+        self.language_proficiency = float(user_data['language_proficiency'])
+        self.lr_easy = float(user_data['lr_easy'])
+        self.lr_moderate = float(user_data['lr_moderate'])
+        self.lr_difficult = float(user_data['lr_difficult'])
 
-        # len(database_backlog_of_quizzes)
-        self.quizID = 1
-
-    def update_language_proficiency(self, error):
-        self.language_proficiency = self.language_proficiency * (1 + error * 0.1)
-
-    def update_personal_learning_rate(self, difficulty_setting, error):
-        if difficulty_setting == "easy":
-            self.lr_easy = self.lr_easy * (self.lr_easy * (1 + 0.1 * error))
-        elif difficulty_setting == "moderate":
-            self.lr_moderate = self.lr_moderate * (self.lr_moderate * (1 + 0.1 * error))
-        elif difficulty_setting == "difficult":
-            self.lr_difficult = self.lr_difficult * (self.lr_difficult * (1 + 0.1 * error))
-        else:
-            return AssertionError
+    def update_user_data(self, error, quiz_difficulty):
+        """Update the language proficiency and learning rates of the user."""
+        updated_values = users.update_user_info(self, error, quiz_difficulty)
+        self.language_proficiency = float(updated_values['language_proficiency'])
+        self.lr_easy = float(updated_values['lr_easy'])
+        self.lr_moderate = float(updated_values['lr_moderate'])
+        self.lr_difficult = float(updated_values['lr_difficult'])
 
 
 class Quiz:
@@ -50,8 +45,10 @@ class Quiz:
         self.correct = 0
         self.incorrect = 0
         self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
+        self.sentenceIDs = []
 
     def create_quiz_df(self):
+        """Create a normal-like curve with truncation for weighted question selection."""
         # Return lower bound, upper bound, mu and sigma in that order
         lower, upper = max(0, 0), 60039
         if self.difficulty == "easy":
@@ -70,11 +67,10 @@ class Quiz:
             if single_sample not in choice_list:
                 choice_list.append(single_sample)
 
-        all_translated_sentences = pd.read_csv("./backend/data/tatoeba/quiz_df.csv", sep=',')
-        self.quizzed_questions = all_translated_sentences.iloc[choice_list]
+        sentenceIDs = personal_ease.return_chosen_sentenceIDs(choice_list).values
+        self.sentenceIDs = sentenceIDs
 
 
-# Wss beter om question als parameter "sentenceID" te geven, en Quiz een method van "get_next_sentenceID".
 class Question:
     def __init__(self, current_quiz):
         self.current_quiz = current_quiz
@@ -88,33 +84,9 @@ class Question:
     def set_sentenceID(self, sentenceID):
         self.sentenceID = sentenceID
 
-    def set_question_sentence(self):
-        entire_database = pd.read_csv("./backend/data/tatoeba/quiz_df.csv", sep=',')
-        self.question_sentence = entire_database.loc[entire_database['sentenceID'] == self.sentenceID].iloc[0][
-            'sentence_pl']
-
-    def generate_correct_answers(self):
-        entire_database = pd.read_csv("./backend/data/tatoeba/quiz_df.csv", sep=',')
-        correct_rows = entire_database.loc[entire_database['sentenceID'] == self.sentenceID]
-        possible_answers = []
-        for _, row in correct_rows.iterrows():
-            if row['lang'] == 'en':
-                possible_answers.append(row['sentence_en'])
-            elif row['lang'] == 'nl':
-                possible_answers.append(row['sentence_nl'])
-        self.correct_answers = possible_answers
-
-    def generate_incorrect_answers(self):
-        entire_database = pd.read_csv("./backend/data/tatoeba/quiz_df.csv", sep=',')
-        three_random_numbers = np.random.choice(a=range(len(entire_database)), size=3,
-                                                replace=False)
-        incorrect_answer_options = []
-        for _, row in entire_database.iloc[three_random_numbers].iterrows():
-            if row['lang'] == 'en':
-                incorrect_answer_options.append(row['sentence_en'])
-            elif row['lang'] == 'nl':
-                incorrect_answer_options.append(row['sentence_nl'])
-        self.incorrect_answers = incorrect_answer_options
+    def set_question_sentence(self, sentenceID):
+        self.question_sentence = personal_ease.get_question_sentence(sentenceID)
+        return self.question_sentence
 
     def generate_answer_options(self):
         """Generates three incorrect answer options for multiple choice questions.
@@ -126,11 +98,10 @@ class Question:
             as evaluation takes this into account, it will also be evaluated correctly, and no tricky
             edge case mitigation should be done to combat this unlikely event.
             Return both the already shuffled list with 4 answer options and the index of a correct one."""
-        self.generate_correct_answers()
-        self.generate_incorrect_answers()
+        self.correct_answers, incorrect_answers = personal_ease.get_answer_options(self.sentenceID)
 
         multiple_choice_options = [self.correct_answers[0]]
-        for incorrect_answer in self.incorrect_answers:
+        for incorrect_answer in incorrect_answers:
             multiple_choice_options.append(incorrect_answer)
         np.random.shuffle(multiple_choice_options)
         index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in self.correct_answers][0]
@@ -150,13 +121,10 @@ class Question:
     # After each question, add sentence_pl, given answer and correct Bool to quiz results.
     # Quiz results will be called in after_quiz
     def add_to_quiz_results(self, given_answer, is_correct):
+        """Add metadata to quiz_results dataframe, a dataframe during a quiz. Will be stored in db on finish."""
         self.current_quiz.quiz_results = self.current_quiz.quiz_results.append({'sentenceID': self.sentenceID,
                                                                                 'Question': self.question_sentence,
                                                                                 'Given answer': given_answer,
                                                                                 'correct': is_correct},
                                                                                ignore_index=True
                                                                                )
-
-    # Na elke vraag de update aanvragen (in feedback scherm), diff = Quiz.diff
-    def update_personal_sentence_ease(self, is_correct, difficulty):
-        pass

@@ -14,7 +14,7 @@
                         <h1>Your quiz settings</h1>
                         <p>You have opted for <i class="house-style">{{ questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
 
-                        <form method="POST" action="{{ url_for('quiz_page', difficulty=difficulty, no_questions=questions, mode=mode) }}" >
+                        <form method="POST" action="{{ url_for('quiz_page') }}" >
                             <div class="form__fieldset">
 
                                 <label class="form__label"></label>
