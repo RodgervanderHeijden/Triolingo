@@ -4,18 +4,10 @@ import pandas as pd
 
 CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (user_name TEXT, language_proficiency FLOAT, lr_easy FLOAT, " \
                     "lr_moderate FLOAT, lr_difficult FLOAT, last_quiz DATETIME)"
-dtype_dict = {'userID': 'INTEGER',
-              'user_name': 'TEXT',
-              'language_proficiency': 'FLOAT',
-              'lr_easy': 'FLOAT',
-              'lr_moderate': 'FLOAT',
-              'lr_difficult': 'FLOAT',
-              'last_quiz': 'DATETIME'
-              }
-UPDATE_USER_STATS = "UPDATE users SET language_proficiency = ?, lr_easy = ?, lr_moderate = ?," \
-                    "lr_difficult = ?, last_quiz = ? WHERE user_name = ?;"
 INSERT_USER = "INSERT INTO users (user_name, language_proficiency, lr_easy, lr_moderate, " \
               "lr_difficult, last_quiz) VALUES (?, ?, ?, ?, ?, ?);"
+UPDATE_USER_STATS = "UPDATE users SET language_proficiency = ?, lr_easy = ?, lr_moderate = ?," \
+                    "lr_difficult = ?, last_quiz = ? WHERE user_name = ?;"
 
 
 # With me as only user
@@ -62,14 +54,14 @@ def update_user_info(user, error, quiz_difficulty):
     lr_moderate = user.lr_moderate
     lr_difficult = user.lr_difficult
     if quiz_difficulty == "easy":
-        lr_easy = user.lr_easy * (1 + 0.2 * error)
+        lr_easy = lr_easy * (1 + 0.2 * error)
     elif quiz_difficulty == "moderate":
         lr_moderate = lr_moderate * (1 + 0.2 * error)
     elif quiz_difficulty == "difficult":
         lr_difficult = lr_difficult * (1 + 0.2 * error)
 
     # additional voodoo to compensate for monotone difficulty selection
-    updated_language_proficiency += (updated_language_proficiency - 1) * 1.05
+    updated_language_proficiency += (lr_easy - 1) * .10 + (lr_moderate - 1) * .10 + (lr_difficult - 1) * .10
     lr_easy -= (lr_easy - 1) * 0.1
     lr_moderate -= (lr_moderate - 1) * 0.1
     lr_difficult -= (lr_difficult - 1) * 0.1

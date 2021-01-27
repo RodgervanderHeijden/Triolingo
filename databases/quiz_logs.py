@@ -54,7 +54,6 @@ def add_new_quiz(quiz):
     conn = connect_quiz()
     with conn:
         conn.execute(INSERT_QUIZ, (str(sentenceIDs), str(questions), str(given_answers), str(result), time_of_quiz, difficulty, mode,))
-        df_new = pd.read_sql('SELECT rowid, * FROM quizzes', con=conn)
 
 
 def return_quiz_logs():
