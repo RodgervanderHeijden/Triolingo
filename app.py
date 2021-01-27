@@ -3,9 +3,9 @@ from helper_functions import after_quiz, convert_answer
 from helper_classes import User, Quiz, Question
 
 triolingo_app = Flask(__name__)
-current_user = User(language_proficiency=1,
-                    name="Rodger")
+current_user = User(name="Rodger")
 global current_quiz
+
 
 @triolingo_app.route("/")
 def homepage():
@@ -58,13 +58,13 @@ def quiz_page():
         current_question = Question(current_quiz)
 
     while current_quiz.correct < current_quiz.no_questions:
-        sentenceID = current_quiz.quizzed_questions.iloc[current_quiz.current_question_no]['sentenceID']
-        current_question.set_sentenceID(sentenceID)
+        sentenceID = int(current_quiz.sentenceIDs[current_quiz.current_question_no])
         # Two options exist:
         # A. the previous page is the settings, and thus you want to show a question
         # B. the previous page is the screen after an answer has been given, and thus now you want a new question
         if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
-            current_question.set_question_sentence()
+            current_question.set_sentenceID(sentenceID)
+            current_question.set_question_sentence(sentenceID)
             if current_quiz.mode == 'multiple choice':
                 current_question.generate_answer_options()
                 return render_template("do_quiz.html", mode=current_quiz.mode,
@@ -93,15 +93,17 @@ def quiz_page():
             # If correct: quiz the next question
             if is_correct:
                 current_quiz.correct += 1
-                current_quiz.current_question_no = current_quiz.current_question_no + 1
+                current_quiz.current_question_no += 1
             # If incorrect, quiz the same question.
             else:
                 # Don't update anything
                 current_quiz.incorrect += 1
 
-            previous_question = current_quiz.quizzed_questions.iloc[previous_question_no]['sentence_pl']
+            previous_question_ID = current_quiz.sentenceIDs[previous_question_no]
+            current_question.set_sentenceID(previous_question_ID)
+            previous_question = current_question.question_sentence
             return render_template("answer_feedback.html", given_answer=given_answer,
-                                   current_question=previous_question, url=url,
+                                   previous_question=previous_question, url=url,
                                    is_correct=is_correct, correct_answer=current_question.correct_answers[0])
 
     return redirect(url_for("show_quiz_data"))
@@ -111,7 +113,9 @@ def quiz_page():
 def show_quiz_data():
     """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
     after_quiz(current_user, current_quiz)
-    quiz_results_html = [current_quiz.quiz_results.to_html(classes='data')]
+    render_df = current_quiz.quiz_results[['Question', 'Given answer', 'correct']]
+    render_df.columns = ['Polish sentence', 'Your answer', 'Correct?']
+    quiz_results_html = [render_df.to_html(index=False, classes='data')]
     return render_template("after_quiz.html", difficulty=current_quiz.difficulty,
                            no_questions=current_quiz.no_questions, mode=current_quiz.mode,
                            quiz_df=quiz_results_html)
