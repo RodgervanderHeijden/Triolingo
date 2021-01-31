@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import after_quiz, convert_answer
+from helper_functions import after_quiz, convert_answer, worker
 from helper_classes import User, Quiz, Question
+import threading
 
 triolingo_app = Flask(__name__)
 current_user = User(name="Rodger")
@@ -66,6 +67,7 @@ def quiz_page():
         global current_question
         current_question = Question(current_quiz)
 
+    event = threading.Event()
     while current_quiz.correct < current_quiz.no_questions:
         sentenceID = int(current_quiz.sentenceIDs[current_quiz.current_question_no])
         # Two options exist:
@@ -74,6 +76,10 @@ def quiz_page():
         if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
             current_question.set_sentenceID(sentenceID)
             current_question.set_question_sentence(sentenceID)
+
+            thread = threading.Thread(target=worker, args=(event, current_question.question_sentence))
+            thread.start()
+
             if current_quiz.mode == 'multiple choice':
                 current_question.generate_answer_options()
                 return render_template("do_quiz.html", mode=current_quiz.mode,
@@ -82,8 +88,7 @@ def quiz_page():
                                        answer_option_2=current_question.answer_options[1],
                                        answer_option_3=current_question.answer_options[2],
                                        answer_option_4=current_question.answer_options[3])
-            elif current_quiz.mode == 'open':
-                current_question.generate_correct_answers()
+            elif current_quiz.mode == 'open': # Is this truly open? Chekc whether this still works
                 return render_template("do_quiz.html", mode=current_quiz.mode,
                                        current_word=current_question.question_sentence, answer=given_answer)
 

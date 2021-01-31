@@ -3,6 +3,26 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from databases import quiz_logs, personal_ease
+from gtts import gTTS
+from random import randint
+import playsound
+import os
+
+
+def worker(event, sentence):
+    tts = gTTS(text=sentence, lang='pl')
+    r = randint(1,20000000)
+    audio_file = 'audio' + str(r) + '.mp3'
+    tts.save(audio_file) # save as mp3
+    playsound.playsound(audio_file) # play the audio file
+    os.remove(audio_file) # remove audio file
+
+    event.wait(1)
+    tts_slow = gTTS(text=sentence, lang='pl', slow=True)
+    audio_file_2 = 'audio' + str(r+1) + '.mp3'
+    tts_slow.save(audio_file_2) # save as mp3
+    playsound.playsound(audio_file_2) # play the audio file
+    os.remove(audio_file_2) # remove audio file
 
 
 # Import the dataframe with all sentences
