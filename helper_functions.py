@@ -5,24 +5,21 @@ from email.mime.multipart import MIMEMultipart
 from databases import quiz_logs, personal_ease
 from gtts import gTTS
 from random import randint
-import playsound
 import os
 
 
-def worker(event, sentence):
-    tts = gTTS(text=sentence, lang='pl')
+def generate_store_tts_audio(sentence):
+    tts = gTTS(text=sentence, lang='pl', slow=False)
     r = randint(1,20000000)
     audio_file = 'audio' + str(r) + '.mp3'
-    tts.save(audio_file) # save as mp3
-    playsound.playsound(audio_file) # play the audio file
-    os.remove(audio_file) # remove audio file
+    full_url = './static/' + audio_file
+    tts.save(full_url) # save as mp3
 
-    event.wait(1)
     tts_slow = gTTS(text=sentence, lang='pl', slow=True)
     audio_file_2 = 'audio' + str(r+1) + '.mp3'
-    tts_slow.save(audio_file_2) # save as mp3
-    playsound.playsound(audio_file_2) # play the audio file
-    os.remove(audio_file_2) # remove audio file
+    full_url_2 = './static/' + audio_file_2
+    tts_slow.save(full_url_2) # save as mp3
+    return full_url, full_url_2
 
 
 # Import the dataframe with all sentences
@@ -86,6 +83,13 @@ def calculate_error(current_quiz):
 
 def after_quiz(user, current_quiz):
     """Method to call after quiz has finished. Write results, calculate new scores."""
+    # Delete all mp3 files after the quiz.
+    files_in_dir = os.listdir('./static')
+    filtered_files = [file for file in files_in_dir if file.endswith(".mp3")]
+    for file in filtered_files:
+        path_to_file = os.path.join('./static', file)
+        os.remove(path_to_file)
+
     error = calculate_error(current_quiz)
     quiz_logs.add_new_quiz(current_quiz)
     user.update_user_data(error, current_quiz.difficulty)
