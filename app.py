@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import after_quiz, convert_answer
+from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
 from helper_classes import User, Quiz, Question
 
 triolingo_app = Flask(__name__)
@@ -33,10 +33,19 @@ def confirm_quiz_settings():
     of the to-be-quizzed questions may still be displayed, and thus this page for
     now remains."""
     global current_quiz
-    current_quiz = Quiz(current_user,
-                        difficulty=request.form.get('difficulty'),
-                        no_questions=request.form.get('amount'),
-                        mode=request.form.get("mode"))
+    try: # If after a quiz the "repeat with same settings" button is chosen, no args will be passed (ie NoneType)
+        current_quiz = Quiz(current_user,
+                            difficulty=request.form.get('difficulty'),
+                            no_questions=request.form.get('amount'),
+                            mode=request.form.get("mode"))
+    except TypeError:
+        difficulty = current_quiz.difficulty
+        no_questions = current_quiz.no_questions
+        mode = current_quiz.mode
+        current_quiz = Quiz(current_user,
+                            difficulty=difficulty,
+                            no_questions=no_questions,
+                            mode=mode)
     current_quiz.create_quiz_df()
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
@@ -65,6 +74,12 @@ def quiz_page():
         if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
             current_question.set_sentenceID(sentenceID)
             current_question.set_question_sentence(sentenceID)
+
+            audio, audio_slow = generate_store_tts_audio(current_question.question_sentence)
+            # Add an extra dot to change path from "./static" to "../static" as the html is in template-dir
+            audio = '.' + audio
+            audio_slow = '.' + audio_slow
+
             if current_quiz.mode == 'multiple choice':
                 current_question.generate_answer_options()
                 return render_template("do_quiz.html", mode=current_quiz.mode,
@@ -72,11 +87,12 @@ def quiz_page():
                                        answer_option_1=current_question.answer_options[0],
                                        answer_option_2=current_question.answer_options[1],
                                        answer_option_3=current_question.answer_options[2],
-                                       answer_option_4=current_question.answer_options[3])
-            elif current_quiz.mode == 'open':
-                current_question.generate_correct_answers()
+                                       answer_option_4=current_question.answer_options[3],
+                                       audio=audio, audio_slow=audio_slow)
+            elif current_quiz.mode == 'open': # Is this truly open? Chekc whether this still works
                 return render_template("do_quiz.html", mode=current_quiz.mode,
-                                       current_word=current_question.question_sentence, answer=given_answer)
+                                       current_word=current_question.question_sentence, answer=given_answer,
+                                       audio=audio, audio_slow=audio_slow)
 
         # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
         elif given_answer is not None:

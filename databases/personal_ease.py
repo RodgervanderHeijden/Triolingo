@@ -98,18 +98,30 @@ def get_answer_options(sentenceID):
 
 
 def update_personal_sentence_ease(quiz_results):
-    sentenceIDs = quiz_results['sentenceID'].values
+    # Duplicate rows are thrown out, both because it's more convenient and because they repeat until correct
+    # Thus, a question once answered incorrectly and subsequently answered correctly would end up with the
+    # same personal difficulty (diff * 1.25 * 0.80).
+    canon_quiz_results = quiz_results.drop_duplicates(subset=['sentenceID'], keep='first').reset_index()
+    sentenceIDs = canon_quiz_results['sentenceID'].values
     conn = connect_personal_sentences()
     with conn:
-        personal_sentence_eases = conn.execute("SELECT personal_sentence_ease "
+        personal_sentence_eases = conn.execute("SELECT personal_sentence_ease, sentenceID "
                                                "FROM personal_ease "
                                                "WHERE sentenceID IN (%s)" %
                                                ','.join('?' * len(sentenceIDs)), sentenceIDs).fetchall()
         for i in range(len(sentenceIDs)):
-            if quiz_results.correct[i]:
-                new_personal_sentence_ease = float(personal_sentence_eases[i][0]) * 1.25
+            # Since the personal sentence eases is a list of tuples (ease, ID), duplicate rows are not included.
+            # Thus, when starting a quiz with an incorrect answer, there would be more sentenceIDs than elements.
+            # By adding the if-statement below, the correct personal ease is taken.
+            for j in range(len(personal_sentence_eases)):
+                if sentenceIDs[i] == personal_sentence_eases[j][1]:
+                    current_personal_sentence_ease = float(personal_sentence_eases[j][0])
+
+            if canon_quiz_results.correct[i]:
+                new_personal_sentence_ease = float(current_personal_sentence_ease * 1.25)
             else:
-                new_personal_sentence_ease = float(personal_sentence_eases[i][0]) * 0.80
+                new_personal_sentence_ease = float(current_personal_sentence_ease * 0.80)
+                
             conn.execute("UPDATE personal_ease "
                          "SET personal_sentence_ease = ? "
                          "WHERE sentenceID = ?", (new_personal_sentence_ease, sentenceIDs[i]))

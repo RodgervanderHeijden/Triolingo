@@ -61,7 +61,7 @@ def update_user_info(user, error, quiz_difficulty):
         lr_difficult = lr_difficult * (1 + 0.2 * error)
 
     # additional voodoo to compensate for monotone difficulty selection
-    updated_language_proficiency += (lr_easy - 1) * .10 + (lr_moderate - 1) * .10 + (lr_difficult - 1) * .10
+    updated_language_proficiency += (lr_easy - 1) * .05 + (lr_moderate - 1) * .05 + (lr_difficult - 1) * .05
     lr_easy -= (lr_easy - 1) * 0.1
     lr_moderate -= (lr_moderate - 1) * 0.1
     lr_difficult -= (lr_difficult - 1) * 0.1

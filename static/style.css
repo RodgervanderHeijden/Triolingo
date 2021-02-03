@@ -62,7 +62,7 @@ h4 {
   color: rgb(103, 12, 63);
 }
 
-h1 {
+h1, h2, h3 {
   color: rgb(103, 12, 63) !important;
 }
 
