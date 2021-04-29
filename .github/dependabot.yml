@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: pandas
+    versions:
+    - 1.2.2
+  - dependency-name: scipy
+    versions:
+    - 1.6.1
