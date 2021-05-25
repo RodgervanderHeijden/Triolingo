@@ -1,4 +1,4 @@
-env/
+venv/
 .idea/
 __pycache__/
 backend/data/my_data/
