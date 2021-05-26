@@ -145,6 +145,13 @@ def show_quiz_data():
                            language_proficiency=round(current_user.language_proficiency, 2), quiz_lr=quiz_lr)
 
 
+@triolingo_app.route("/account", methods=['GET'])
+def account():
+    """Dashboard detailing the user account"""
+
+    return render_template("account.html", current_user=current_user)
+
+
 @triolingo_app.route("/about")
 def about():
     """Basic about page."""
