@@ -11,10 +11,43 @@
             <div class="col">
                 <div class="shadow card mb-4 ">
                     <div class="card-body">
-                        <h1>Hi</h1>
+                        <h1>Hi {{ current_user.name }}</h1>
                         <p class="text-muted">
-                            Creator of Triolingo
+                            Your statistics
                         </p>
+
+
+
+                        <p>{{ current_user.language_proficiency|round(2) }}</p>
+                        <p>{{ current_user.lr_easy|round(2) }}</p>
+                        <p>{{ current_user.lr_moderate|round(2) }}</p>
+                        <p>{{ current_user.lr_difficult|round(2) }}</p>
+
+                    </div>
+                </div>
+                <div class="shadow card mb-4">
+                    <div class="card-body">
+                        <h1>Hi {{ current_user.name }}</h1>
+                        <p class="text-muted">
+                            Your statistics
+                        </p>
+
+                        <p>You have done <strong>N</strong> quizzes, with a total of X sentences.</p>
+
+                    </div>
+                </div>
+                <div class="shadow card mb-4">
+                    <div class="card-body">
+                        <h1>Hi {{ current_user.name }}</h1>
+                        <p class="text-muted">
+                            Your latest quiz
+                        </p>
+
+                        <p>You have done <strong>N</strong> quizzes, with a total of X sentences.</p>
+                        <p>{{ current_user.lr_easy }}</p>
+                        <p>{{ current_user.lr_moderate }}</p>
+                        <p>{{ current_user.lr_difficult }}</p>
+
                     </div>
                 </div>
             </div>
