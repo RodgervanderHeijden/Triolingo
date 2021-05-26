@@ -11,9 +11,12 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <h1>About your most recent quiz</h1>
-                        <p>Lorem ipsum.</p>
 
                         <p>You have opted for <i>{{ no_questions }}, {{ difficulty }}, {{ mode }}</i> questions.</p>
+
+                        <p>Your general language proficiency now is <strong><i>{{ language_proficiency }}</i></strong>,
+                            and your multiplier for <i>{{ difficulty }}</i> quizzes now is
+                            <strong><i>{{ quiz_lr }}</i></strong></p>
 
                         <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
                             <div class="form__fieldset">

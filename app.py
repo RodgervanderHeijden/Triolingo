@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect
-from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
+
 from helper_classes import User, Quiz, Question
+from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
 
 triolingo_app = Flask(__name__)
 current_user = User(name="Rodger")
@@ -33,7 +34,7 @@ def confirm_quiz_settings():
     of the to-be-quizzed questions may still be displayed, and thus this page for
     now remains."""
     global current_quiz
-    try: # If after a quiz the "repeat with same settings" button is chosen, no args will be passed (ie NoneType)
+    try:  # If after a quiz the "repeat with same settings" button is chosen, no args will be passed (ie NoneType)
         current_quiz = Quiz(current_user,
                             difficulty=request.form.get('difficulty'),
                             no_questions=request.form.get('amount'),
@@ -89,7 +90,7 @@ def quiz_page():
                                        answer_option_3=current_question.answer_options[2],
                                        answer_option_4=current_question.answer_options[3],
                                        audio=audio, audio_slow=audio_slow)
-            elif current_quiz.mode == 'open': # Is this truly open? Chekc whether this still works
+            elif current_quiz.mode == 'open':  # Is this truly open? Chekc whether this still works
                 return render_template("do_quiz.html", mode=current_quiz.mode,
                                        current_word=current_question.question_sentence, answer=given_answer,
                                        audio=audio, audio_slow=audio_slow)
@@ -104,7 +105,7 @@ def quiz_page():
             else:
                 is_correct = current_question.check_answers(given_answer)
 
-            current_question.add_to_quiz_results(given_answer, is_correct,)
+            current_question.add_to_quiz_results(given_answer, is_correct, )
             previous_question_no = current_quiz.current_question_no
             # If correct: quiz the next question
             if is_correct:
@@ -132,9 +133,16 @@ def show_quiz_data():
     render_df = current_quiz.quiz_results[['Question', 'Given answer', 'correct']]
     render_df.columns = ['Polish sentence', 'Your answer', 'Correct?']
     quiz_results_html = [render_df.to_html(index=False, classes='data')]
+    if current_quiz.difficulty == 'easy':
+        quiz_lr = round(current_user.lr_easy, 2)
+    elif current_quiz.difficulty == 'moderate':
+        quiz_lr = round(current_user.lr_moderate, 2)
+    elif current_quiz.difficulty == 'difficult':
+        quiz_lr = round(current_user.lr_difficult, 2)
+
     return render_template("after_quiz.html", difficulty=current_quiz.difficulty,
-                           no_questions=current_quiz.no_questions, mode=current_quiz.mode,
-                           quiz_df=quiz_results_html)
+                           no_questions=current_quiz.no_questions, mode=current_quiz.mode, quiz_df=quiz_results_html,
+                           language_proficiency=round(current_user.language_proficiency, 2), quiz_lr=quiz_lr)
 
 
 @triolingo_app.route("/about")
