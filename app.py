@@ -47,7 +47,11 @@ def confirm_quiz_settings():
                             difficulty=difficulty,
                             no_questions=no_questions,
                             mode=mode)
-    current_quiz.create_quiz_df()
+
+    distribution_params = current_quiz.calculate_distribution_parameters()
+    chosen_indices = current_quiz.draw_words_from_chosen_distribution(distribution_params)
+    current_quiz.retrieve_sentences_from_index(chosen_indices)
+
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 

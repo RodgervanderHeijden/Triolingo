@@ -47,7 +47,7 @@ class Quiz:
         self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
         self.sentenceIDs = []
 
-    def create_quiz_df(self):
+    def calculate_distribution_parameters(self):
         """Create a normal-like curve with truncation for weighted question selection."""
         # Return lower bound, upper bound, mu and sigma in that order
         lower, upper = max(0, 0), 60039
@@ -57,16 +57,24 @@ class Quiz:
             mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_moderate * 0.05, 2000
         elif self.difficulty == "difficult":
             mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_difficult * 0.10, 3000
-        X = stats.truncnorm(
+        return stats.truncnorm(
             a=(lower - mu) / sigma, b=(upper - mu) / sigma,
             loc=mu, scale=sigma)
-        choice_list = list()
 
+    def draw_words_from_chosen_distribution(self, distribution_params):
+        """Initializes an empty list and draws based on the generated distribution parameters.
+        If the selected index (by coincidence) is drawn again, a new draw takes place."""
+        # calculated_distribution_parameters = self.calculate_distribution_parameters()
+        choice_list = list()
         while len(choice_list) < self.no_questions:
-            single_sample = int(X.rvs(1))
+            single_sample = int(distribution_params.rvs(1))
             if single_sample not in choice_list:
                 choice_list.append(single_sample)
+        return choice_list
 
+    def retrieve_sentences_from_index(self, choice_list):
+        """Based on the selected indices, retrieves the associated sentences and sets it in self"""
+        # choice_list = self.draw_words_from_chosen_distribution()
         sentenceIDs = personal_ease.return_chosen_sentenceIDs(choice_list).values
         self.sentenceIDs = sentenceIDs
 
