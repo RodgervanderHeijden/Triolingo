@@ -52,11 +52,12 @@ class Quiz:
         # Return lower bound, upper bound, mu and sigma in that order
         lower, upper = max(0, 0), 60039
         if self.difficulty == "easy":
-            mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_easy * 0.01, 200
+            mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_easy * 0.0001, 200
         elif self.difficulty == "moderate":
-            mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_moderate * 0.05, 2000
+            mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_moderate * 0.0005, 2000
         elif self.difficulty == "difficult":
-            mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_difficult * 0.10, 3000
+            mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_difficult * 0.0010, 3000
+
         return stats.truncnorm(
             a=(lower - mu) / sigma, b=(upper - mu) / sigma,
             loc=mu, scale=sigma)
