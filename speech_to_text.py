@@ -25,8 +25,6 @@ with sr.Microphone() as source:
 from gtts import gTTS
 from random import randint
 
-import playsound
-
 
 def generate_store_tts_audio(sentence, lang):
     tts = gTTS(text=sentence, lang=lang, slow=False)
@@ -34,7 +32,6 @@ def generate_store_tts_audio(sentence, lang):
     audio_file = 'audio' + str(r) + '.mp3'
     full_url = './static/' + audio_file
     tts.save(full_url) # save as mp3
-    playsound.playsound(full_url)
 
 print(transcribed_text)
 generate_store_tts_audio(transcribed_text, 'nl')
