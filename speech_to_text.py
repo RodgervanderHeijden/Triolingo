@@ -10,6 +10,8 @@
 
 import speech_recognition as sr
 r = sr.Recognizer()
+# TODO: deep_translator can easily translate sentences, may be useful in the future
+from deep_translator import GoogleTranslator
 
 
 with sr.Microphone() as source:
@@ -35,3 +37,12 @@ def generate_store_tts_audio(sentence, lang):
 
 print(transcribed_text)
 generate_store_tts_audio(transcribed_text, 'nl')
+translated_text_en = GoogleTranslator(source='auto', target='en').translate(transcribed_text)
+print(translated_text_en)
+generate_store_tts_audio(translated_text_en, 'en')
+translated_text_pl = GoogleTranslator(source='auto', target='pl').translate(transcribed_text)
+print(translated_text_pl)
+generate_store_tts_audio(translated_text_pl, 'pl')
+translated_text_nl = GoogleTranslator(source='auto', target='nl').translate(transcribed_text)
+print(translated_text_nl)
+generate_store_tts_audio(translated_text_nl, 'nl')
