@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect
 
 from helper_classes import User, Quiz, Question
 from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
+import helper_functions
 
 triolingo_app = Flask(__name__)
 current_user = User(name="Rodger")
@@ -34,24 +35,7 @@ def confirm_quiz_settings():
     of the to-be-quizzed questions may still be displayed, and thus this page for
     now remains."""
     global current_quiz
-    try:  # If after a quiz the "repeat with same settings" button is chosen, no args will be passed (ie NoneType)
-        current_quiz = Quiz(current_user,
-                            difficulty=request.form.get('difficulty'),
-                            no_questions=request.form.get('amount'),
-                            mode=request.form.get("mode"))
-    except TypeError:
-        difficulty = current_quiz.difficulty
-        no_questions = current_quiz.no_questions
-        mode = current_quiz.mode
-        current_quiz = Quiz(current_user,
-                            difficulty=difficulty,
-                            no_questions=no_questions,
-                            mode=mode)
-
-    distribution_params = current_quiz.calculate_distribution_parameters()
-    chosen_indices = current_quiz.draw_words_from_chosen_distribution(distribution_params)
-    current_quiz.retrieve_sentences_from_index(chosen_indices)
-
+    current_quiz = helper_functions.initialize_quiz(current_user, request)
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
