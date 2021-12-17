@@ -52,9 +52,6 @@ class Quiz:
         if mu is not None:
             self.mu = mu
 
-    def get_quiz_params(self):
-        return self
-
     def calculate_distribution_parameters(self):
         """Create a normal-like curve with truncation for weighted question selection."""
         # Return lower bound, upper bound, mu and sigma in that order
@@ -126,6 +123,13 @@ class Question:
         self.answer_options = multiple_choice_options
 
     def check_answers(self, given_answer):
+        """Check whether the user-provided answer is correct.
+
+        Given answer and the sentenceID, check whether it is correct.
+        First use question_number (as index of quiz_df) to find matching
+        sentenceID, then call retrieve_all_correct_answers for that ID.
+        If the provided answer is in the list of possible answers, it is
+        correct (True), otherwise not (False). Return result."""
         remove_punctuation = str.maketrans("", "", string.punctuation)
         cleaned_given_answer = given_answer.lower().translate(remove_punctuation)
         cleaned_correct_answers = []

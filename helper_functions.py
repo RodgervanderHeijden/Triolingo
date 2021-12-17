@@ -1,16 +1,8 @@
-import string
 from databases import quiz_logs, personal_ease
 from gtts import gTTS
 from random import randint
 import os
-import helper_classes
-
 global previous_quiz
-
-
-def create_empty_quiz_instance(user):
-    """Creates an empty quiz instance using only the username."""
-    return helper_classes.Quiz(user)
 
 
 def create_quiz_object_with_settings(empty_quiz_instance, request):
@@ -73,26 +65,6 @@ def convert_answer(given_answer):
         return converted_answer
 
 
-def check_answers(given_answer, sentenceID, current_question):
-    """Check whether the user-provided answer is correct.
-
-    Given answer and the sentenceID, check whether it is correct.
-    First use question_number (as index of quiz_df) to find matching
-    sentenceID, then call retrieve_all_correct_answers for that ID.
-    If the provided answer is in the list of possible answers, it is
-    correct (True), otherwise not (False). Return result."""
-    possible_answers = current_question.correct_answers
-    remove_punctuation = str.maketrans("", "", string.punctuation)
-    cleaned_given_answer = given_answer.lower().translate(remove_punctuation)
-
-    cleaned_correct_answers = []
-    for possible_answer in possible_answers:
-        # Using the same remove_punctuation translation as defined above
-        cleaned_answer = possible_answer.lower().translate(remove_punctuation)
-        cleaned_correct_answers.append(cleaned_answer)
-    return cleaned_given_answer in cleaned_correct_answers
-
-
 def expected_correct_ratio(difficulty):
     """Returns the expected ratio of correct questions."""
     if difficulty == "easy":
@@ -124,7 +96,7 @@ def after_quiz(user, current_quiz):
     user.update_user_data(error, current_quiz.difficulty)
     personal_ease.update_personal_sentence_ease(current_quiz.quiz_results)
     # Once all info regarding the completed quiz has been updated, a 'new' quiz previous_quiz gets made
-    # that stores all information. 
+    # that stores all information.
     global previous_quiz
     previous_quiz = current_quiz
     return previous_quiz
