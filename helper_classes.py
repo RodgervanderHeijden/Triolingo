@@ -31,22 +31,29 @@ class User:
 class Quiz:
     def __init__(self,
                  user,
-                 difficulty="easy",
-                 no_questions=int(10),
-                 mode="multiple choice",
                  ):
-        # self.language_proficiency = language_proficiency
         self.user = user
-        self.difficulty = difficulty
-        self.no_questions = int(no_questions)
-        self.current_question_no = 0
-        self.mode = mode
+        self.difficulty = "easy"
+        self.no_questions = int(10)
+        self.mode = "multiple choice"
+
         self.quizzed_questions = None
+        self.current_question_no = 0
         self.correct = 0
         self.incorrect = 0
-        self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
         self.sentenceIDs = []
         self.mu = 0
+        self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
+
+    def set_quiz_params(self, difficulty: str, no_questions: int, mode: str, mu: float = None) -> None:
+        self.difficulty = difficulty
+        self.no_questions = int(no_questions)
+        self.mode = mode
+        if mu is not None:
+            self.mu = mu
+
+    def get_quiz_params(self):
+        return self
 
     def calculate_distribution_parameters(self):
         """Create a normal-like curve with truncation for weighted question selection."""

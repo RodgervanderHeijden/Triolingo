@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, url_for, redirect
 
-from helper_classes import User, Quiz, Question
-from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
+import helper_classes
 import helper_functions
+from helper_classes import Question
+from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
 
 triolingo_app = Flask(__name__)
-current_user = User(name="Rodger")
-global current_quiz
+current_user = helper_classes.User(name="Rodger")
+current_quiz = helper_classes.Quiz(user=current_user)
 
 
 @triolingo_app.route("/")
@@ -34,14 +35,13 @@ def confirm_quiz_settings():
     though not required anymore because of classes. However, pre-quiz an overview
     of the to-be-quizzed questions may still be displayed, and thus this page for
     now remains."""
-    global current_quiz
-    current_quiz = helper_functions.create_quiz_object_with_settings(current_user, request)
-    helper_functions.initialize_quiz(current_quiz)
+    helper_functions.create_quiz_object_with_settings(current_quiz, request)
+    helper_functions.initialize_quiz_questions(current_quiz)
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
 
-@triolingo_app.route("/quiz/", methods=["POST"])
+@triolingo_app.route("/quiz", methods=["POST"])
 def quiz_page():
     """The quiz page.
 
@@ -115,24 +115,30 @@ def quiz_page():
     return redirect(url_for("show_quiz_data"))
 
 
-@triolingo_app.route("/after_quiz/", methods=["GET", "POST"])
+@triolingo_app.route("/after_quiz", methods=["GET", "POST"])
 def show_quiz_data():
     """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
-    after_quiz(current_user, current_quiz)
-    render_df = current_quiz.quiz_results[['Question', 'Given answer', 'correct']]
+    global current_quiz
+    global previous_quiz
+    previous_quiz = after_quiz(current_user, current_quiz)
+    # create a new empty quiz for future use
+    current_quiz = helper_classes.Quiz(current_user)
+    # Construct dataframe with results of completed quiz
+    render_df = previous_quiz.quiz_results[['Question', 'Given answer', 'correct']]
     render_df.columns = ['Polish sentence', 'Your answer', 'Correct?']
     quiz_results_html = [render_df.to_html(index=False, classes='data')]
-    if current_quiz.difficulty == 'easy':
+    # Get learning rates for quiz difficulty setting
+    if previous_quiz.difficulty == 'easy':
         quiz_lr = round(current_user.lr_easy, 2)
-    elif current_quiz.difficulty == 'moderate':
+    elif previous_quiz.difficulty == 'moderate':
         quiz_lr = round(current_user.lr_moderate, 2)
-    elif current_quiz.difficulty == 'difficult':
+    elif previous_quiz.difficulty == 'difficult':
         quiz_lr = round(current_user.lr_difficult, 2)
 
-    return render_template("after_quiz.html", difficulty=current_quiz.difficulty,
-                           no_questions=current_quiz.no_questions, mode=current_quiz.mode, quiz_df=quiz_results_html,
+    return render_template("after_quiz.html", difficulty=previous_quiz.difficulty,
+                           no_questions=previous_quiz.no_questions, mode=previous_quiz.mode, quiz_df=quiz_results_html,
                            language_proficiency=round(current_user.language_proficiency, 2), quiz_lr=quiz_lr,
-                           mu=int(current_quiz.mu))
+                           mu=int(previous_quiz.mu))
 
 
 @triolingo_app.route("/about")

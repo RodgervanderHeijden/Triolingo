@@ -7,23 +7,28 @@ import helper_classes
 
 global previous_quiz
 
-def create_quiz_object_with_settings(current_user, request):
-    """Creates the quiz instance with the parameters the user has selected in his request."""
+
+def create_empty_quiz_instance(user):
+    """Creates an empty quiz instance using only the username."""
+    return helper_classes.Quiz(user)
+
+
+def create_quiz_object_with_settings(empty_quiz_instance, request):
+    """Takes the empty quiz instance with the parameters the user has selected in his request - if any."""
     if request.form.get("difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
-        current_quiz = helper_classes.Quiz(current_user,
-                            difficulty=request.form.get('difficulty'),
+        empty_quiz_instance.set_quiz_params(
+            difficulty=request.form.get('difficulty'),
                             no_questions=request.form.get('amount'),
                             mode=request.form.get("mode"))
-    else:
+    else: # If after a quiz the "repeat with same settings" button is used, there's an empty request
         global previous_quiz
-        current_quiz = helper_classes.Quiz(current_user,
+        empty_quiz_instance.set_quiz_params(
                                            difficulty=previous_quiz.difficulty,
                                            no_questions=previous_quiz.no_questions,
                                            mode=previous_quiz.mode)
-    return current_quiz
 
 
-def initialize_quiz(current_quiz):
+def initialize_quiz_questions(current_quiz):
     """Creates a quiz instance by first retrieving the quiz settings from the request,
     then creating the sampling distribution, then doing the sampling and getting the sentenceIDs."""
     # current_quiz = initialize_quiz_settings(current_user, request)
@@ -114,16 +119,15 @@ def after_quiz(user, current_quiz):
         path_to_file = os.path.join('./static', file)
         os.remove(path_to_file)
 
-    global previous_quiz
-    previous_quiz = helper_classes.Quiz(user.name,
-                                        current_quiz.difficulty,
-                                        current_quiz.no_questions,
-                                        current_quiz.mode)
-
     error = calculate_error(current_quiz)
     quiz_logs.add_new_quiz(current_quiz)
     user.update_user_data(error, current_quiz.difficulty)
     personal_ease.update_personal_sentence_ease(current_quiz.quiz_results)
+    # Once all info regarding the completed quiz has been updated, a 'new' quiz previous_quiz gets made
+    # that stores all information. 
+    global previous_quiz
+    previous_quiz = current_quiz
+    return previous_quiz
 
 
 # # Functional in isolation, no implementation done.
