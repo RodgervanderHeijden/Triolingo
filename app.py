@@ -35,7 +35,8 @@ def confirm_quiz_settings():
     of the to-be-quizzed questions may still be displayed, and thus this page for
     now remains."""
     global current_quiz
-    current_quiz = helper_functions.initialize_quiz(current_user, request)
+    current_quiz = helper_functions.create_quiz_object_with_settings(current_user, request)
+    helper_functions.initialize_quiz(current_quiz)
     return render_template("quiz_confirmation.html", difficulty=current_quiz.difficulty,
                            questions=current_quiz.no_questions, mode=current_quiz.mode)
 
@@ -130,7 +131,8 @@ def show_quiz_data():
 
     return render_template("after_quiz.html", difficulty=current_quiz.difficulty,
                            no_questions=current_quiz.no_questions, mode=current_quiz.mode, quiz_df=quiz_results_html,
-                           language_proficiency=round(current_user.language_proficiency, 2), quiz_lr=quiz_lr)
+                           language_proficiency=round(current_user.language_proficiency, 2), quiz_lr=quiz_lr,
+                           mu=int(current_quiz.mu))
 
 
 @triolingo_app.route("/about")

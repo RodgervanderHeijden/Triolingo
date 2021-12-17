@@ -5,30 +5,31 @@ from random import randint
 import os
 import helper_classes
 
+global previous_quiz
 
-def initialize_quiz(current_user, request):
-    """Creates a quiz instance by first retrieving the quiz settings from the request,
-    then creating the sampling distribution, then doing the sampling and getting the sentenceIDs."""
-    current_quiz = initialize_quiz_settings(current_user, request)
-    distribution_params = current_quiz.calculate_distribution_parameters()
-    chosen_indices = current_quiz.draw_words_from_chosen_distribution(distribution_params)
-    current_quiz.retrieve_sentences_from_index(chosen_indices)
-    return current_quiz
-
-
-def initialize_quiz_settings(current_user, request):
+def create_quiz_object_with_settings(current_user, request):
     """Creates the quiz instance with the parameters the user has selected in his request."""
-    try:  # If after a quiz the "repeat with same settings" button is chosen, no args will be passed (ie NoneType)
+    if request.form.get("difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
         current_quiz = helper_classes.Quiz(current_user,
                             difficulty=request.form.get('difficulty'),
                             no_questions=request.form.get('amount'),
                             mode=request.form.get("mode"))
-    except TypeError:
+    else:
+        global previous_quiz
         current_quiz = helper_classes.Quiz(current_user,
-                            difficulty=current_quiz.difficulty,
-                            no_questions=current_quiz.no_questions,
-                            mode=current_quiz.mode)
+                                           difficulty=previous_quiz.difficulty,
+                                           no_questions=previous_quiz.no_questions,
+                                           mode=previous_quiz.mode)
     return current_quiz
+
+
+def initialize_quiz(current_quiz):
+    """Creates a quiz instance by first retrieving the quiz settings from the request,
+    then creating the sampling distribution, then doing the sampling and getting the sentenceIDs."""
+    # current_quiz = initialize_quiz_settings(current_user, request)
+    distribution_params = current_quiz.calculate_distribution_parameters()
+    chosen_indices = current_quiz.draw_words_from_chosen_distribution(distribution_params)
+    current_quiz.retrieve_sentences_from_index(chosen_indices)
 
 
 def generate_store_tts_audio(sentence):
@@ -112,6 +113,12 @@ def after_quiz(user, current_quiz):
     for file in filtered_files:
         path_to_file = os.path.join('./static', file)
         os.remove(path_to_file)
+
+    global previous_quiz
+    previous_quiz = helper_classes.Quiz(user.name,
+                                        current_quiz.difficulty,
+                                        current_quiz.no_questions,
+                                        current_quiz.mode)
 
     error = calculate_error(current_quiz)
     quiz_logs.add_new_quiz(current_quiz)

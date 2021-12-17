@@ -46,6 +46,7 @@ class Quiz:
         self.incorrect = 0
         self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
         self.sentenceIDs = []
+        self.mu = 0
 
     def calculate_distribution_parameters(self):
         """Create a normal-like curve with truncation for weighted question selection."""
@@ -57,7 +58,7 @@ class Quiz:
             mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_moderate * 0.0005, 2000
         elif self.difficulty == "difficult":
             mu, sigma = self.user.language_proficiency * 60039 * self.user.lr_difficult * 0.0010, 3000
-
+        self.mu = mu
         return stats.truncnorm(
             a=(lower - mu) / sigma, b=(upper - mu) / sigma,
             loc=mu, scale=sigma)

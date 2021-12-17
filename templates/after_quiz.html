@@ -18,6 +18,9 @@
                             and your multiplier for <i>{{ difficulty }}</i> quizzes now is
                             <strong><i>{{ quiz_lr }}</i></strong></p>
 
+                        <p>With your langauge proficiency, the quiz difficulty and your prior quizzes, the words were
+                            sampled around <strong><i>{{ mu }}</i></strong>.
+
                         <form method="POST" action="{{ url_for('confirm_quiz_settings') }}">
                             <div class="form__fieldset">
                                 <button type="submit" class="border btn-lg btn-outline-primary rightAlign" autofocus>Repeat with same settings</button>
