@@ -1,7 +1,9 @@
+import string
+
+import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import numpy as np
-import string
+
 from databases import users, personal_ease
 
 
@@ -19,7 +21,7 @@ class User:
         self.lr_moderate = float(user_data['lr_moderate'])
         self.lr_difficult = float(user_data['lr_difficult'])
 
-    def update_user_data(self, error, quiz_difficulty):
+    def update_user_data(self, error: float, quiz_difficulty: str) -> None:
         """Update the language proficiency and learning rates of the user."""
         updated_values = users.update_user_info(self, error, quiz_difficulty)
         self.language_proficiency = float(updated_values['language_proficiency'])
@@ -31,22 +33,26 @@ class User:
 class Quiz:
     def __init__(self,
                  user,
-                 difficulty="easy",
-                 no_questions=int(10),
-                 mode="multiple choice",
                  ):
-        # self.language_proficiency = language_proficiency
         self.user = user
-        self.difficulty = difficulty
-        self.no_questions = int(no_questions)
-        self.current_question_no = 0
-        self.mode = mode
+        self.difficulty = "easy"
+        self.no_questions = int(10)
+        self.mode = "multiple choice"
+
         self.quizzed_questions = None
+        self.current_question_no = 0
         self.correct = 0
         self.incorrect = 0
-        self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
         self.sentenceIDs = []
         self.mu = 0
+        self.quiz_results = pd.DataFrame(columns=['sentenceID', 'Question', 'Given answer', 'correct'])
+
+    def set_quiz_params(self, difficulty: str, no_questions: int, mode: str, mu: float = None) -> None:
+        self.difficulty = difficulty
+        self.no_questions = int(no_questions)
+        self.mode = mode
+        if mu is not None:
+            self.mu = mu
 
     def calculate_distribution_parameters(self):
         """Create a normal-like curve with truncation for weighted question selection."""
@@ -63,7 +69,7 @@ class Quiz:
             a=(lower - mu) / sigma, b=(upper - mu) / sigma,
             loc=mu, scale=sigma)
 
-    def draw_words_from_chosen_distribution(self, distribution_params):
+    def draw_words_from_chosen_distribution(self, distribution_params) -> list:
         """Initializes an empty list and draws based on the generated distribution parameters.
         If the selected index (by coincidence) is drawn again, a new draw takes place."""
         # calculated_distribution_parameters = self.calculate_distribution_parameters()
@@ -74,7 +80,7 @@ class Quiz:
                 choice_list.append(single_sample)
         return choice_list
 
-    def retrieve_sentences_from_index(self, choice_list):
+    def retrieve_sentences_from_index(self, choice_list: list) -> None:
         """Based on the selected indices, retrieves the associated sentences and sets it in self"""
         # choice_list = self.draw_words_from_chosen_distribution()
         sentenceIDs = personal_ease.return_chosen_sentenceIDs(choice_list).values
@@ -91,10 +97,10 @@ class Question:
         self.sentenceID = ""
         self.correct_index = int()
 
-    def set_sentenceID(self, sentenceID):
+    def set_sentenceID(self, sentenceID: int):
         self.sentenceID = sentenceID
 
-    def set_question_sentence(self, sentenceID):
+    def set_question_sentence(self, sentenceID: int) -> str:
         self.question_sentence = personal_ease.get_question_sentence(sentenceID)
         return self.question_sentence
 
@@ -118,9 +124,16 @@ class Question:
         self.correct_index = index
         self.answer_options = multiple_choice_options
 
-    def check_answers(self, given_answer):
+    def check_answers(self, given_answer: str):
+        """Check whether the user-provided answer is correct.
+
+        Given answer and the sentenceID, check whether it is correct.
+        First use question_number (as index of quiz_df) to find matching
+        sentenceID, then call retrieve_all_correct_answers for that ID.
+        If the provided answer is in the list of possible answers, it is
+        correct (True), otherwise not (False). Return result."""
         remove_punctuation = str.maketrans("", "", string.punctuation)
-        cleaned_given_answer = given_answer.lower().translate(remove_punctuation)
+        cleaned_given_answer = given_answer.translate(remove_punctuation)
         cleaned_correct_answers = []
         for possible_answer in self.correct_answers:
             # Using the same remove_punctuation translation as defined above
@@ -130,7 +143,7 @@ class Question:
 
     # After each question, add sentence_pl, given answer and correct Bool to quiz results.
     # Quiz results will be called in after_quiz
-    def add_to_quiz_results(self, given_answer, is_correct):
+    def add_to_quiz_results(self, given_answer, is_correct: bool) -> None:
         """Add metadata to quiz_results dataframe, a dataframe during a quiz. Will be stored in db on finish."""
         self.current_quiz.quiz_results = self.current_quiz.quiz_results.append({'sentenceID': self.sentenceID,
                                                                                 'Question': self.question_sentence,

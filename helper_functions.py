@@ -1,29 +1,30 @@
-import string
-from databases import quiz_logs, personal_ease
-from gtts import gTTS
-from random import randint
 import os
+from random import randint
+
+from gtts import gTTS
+
 import helper_classes
+from databases import quiz_logs, personal_ease
+from typing import Type, Tuple
 
 global previous_quiz
 
-def create_quiz_object_with_settings(current_user, request):
-    """Creates the quiz instance with the parameters the user has selected in his request."""
-    if request.form.get("difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
-        current_quiz = helper_classes.Quiz(current_user,
-                            difficulty=request.form.get('difficulty'),
-                            no_questions=request.form.get('amount'),
-                            mode=request.form.get("mode"))
-    else:
+
+def create_quiz_object_with_settings(empty_quiz_instance: Type[helper_classes.Quiz], request) -> None:
+    """Takes the empty quiz instance with the parameters the user has selected in his request - if any."""
+    if request.form.get(
+            "difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
+        empty_quiz_instance.set_quiz_params(difficulty=request.form.get('difficulty'),
+                                            no_questions=request.form.get('amount'),
+                                            mode=request.form.get("mode"))
+    else:  # If after a quiz the "repeat with same settings" button is used, there's an empty request
         global previous_quiz
-        current_quiz = helper_classes.Quiz(current_user,
-                                           difficulty=previous_quiz.difficulty,
-                                           no_questions=previous_quiz.no_questions,
-                                           mode=previous_quiz.mode)
-    return current_quiz
+        empty_quiz_instance.set_quiz_params(difficulty=previous_quiz.difficulty,
+                                            no_questions=previous_quiz.no_questions,
+                                            mode=previous_quiz.mode)
 
 
-def initialize_quiz(current_quiz):
+def initialize_quiz_questions(current_quiz: Type[helper_classes.Quiz]) -> None:
     """Creates a quiz instance by first retrieving the quiz settings from the request,
     then creating the sampling distribution, then doing the sampling and getting the sentenceIDs."""
     # current_quiz = initialize_quiz_settings(current_user, request)
@@ -32,63 +33,46 @@ def initialize_quiz(current_quiz):
     current_quiz.retrieve_sentences_from_index(chosen_indices)
 
 
-def generate_store_tts_audio(sentence):
-    tts = gTTS(text=sentence, lang='pl', slow=False)
-    r = randint(1,20000000)
-    audio_file = 'audio' + str(r) + '.mp3'
-    full_url = './static/' + audio_file
-    tts.save(full_url) # save as mp3
+def create_tts_audio(sentence: str, slow: bool, random_number: int) -> str:
+    audio_file_name = 'audio' + str(random_number) + '.mp3'
+    full_file_path = './static/' + audio_file_name
+    tts = gTTS(text=sentence, lang='pl', slow=slow)
+    tts.save(full_file_path)  # save as mp3
+    return full_file_path
 
-    tts_slow = gTTS(text=sentence, lang='pl', slow=True)
-    audio_file_2 = 'audio' + str(r+1) + '.mp3'
-    full_url_2 = './static/' + audio_file_2
-    tts_slow.save(full_url_2) # save as mp3
-    return full_url, full_url_2
+
+def generate_store_tts_audio(sentence: str) -> Tuple[str, str]:
+    r = randint(1, 20000000)
+    normal_speed_file_path = create_tts_audio(sentence, slow=False, random_number=r)
+    slow_speed_file_path = create_tts_audio(sentence, slow=True, random_number=r + 1)
+    return normal_speed_file_path, slow_speed_file_path
 
 
 # Import the dataframe with all sentences
 # TODO: change this to include the entire corpus of CLARIN
 # see: http://clarin-pl.eu/en/home-page/
 # see: http://nkjp.pl/index.php?page=14&lang=1
-def convert_answer(given_answer):
-    if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
-        # Is answer was given as letter, convert to numerical
-        if given_answer.lower() == 'a':
-            given_answer = 1
-        elif given_answer.lower() == 'b':
-            given_answer = 2
-        elif given_answer.lower() == 'c':
-            given_answer = 3
-        elif given_answer.lower() == 'd':
-            given_answer = 4
-        given_answer = int(given_answer)
-        # To convert to correct index, subtract one. This works both for the human-provided numbers
-        # and the just mapped numbers.
-        converted_answer = given_answer - 1
-        return converted_answer
+def convert_str_answer_to_int(given_answer: str) -> int:
+    # Is answer was given as letter, convert to numerical
+    if given_answer == 'a':
+        given_answer = 1
+    elif given_answer == 'b':
+        given_answer = 2
+    elif given_answer == 'c':
+        given_answer = 3
+    elif given_answer == 'd':
+        given_answer = 4
+    return int(given_answer)
 
 
-def check_answers(given_answer, sentenceID, current_question):
-    """Check whether the user-provided answer is correct.
-
-    Given answer and the sentenceID, check whether it is correct.
-    First use question_number (as index of quiz_df) to find matching
-    sentenceID, then call retrieve_all_correct_answers for that ID.
-    If the provided answer is in the list of possible answers, it is
-    correct (True), otherwise not (False). Return result."""
-    possible_answers = current_question.correct_answers
-    remove_punctuation = str.maketrans("", "", string.punctuation)
-    cleaned_given_answer = given_answer.lower().translate(remove_punctuation)
-
-    cleaned_correct_answers = []
-    for possible_answer in possible_answers:
-        # Using the same remove_punctuation translation as defined above
-        cleaned_answer = possible_answer.lower().translate(remove_punctuation)
-        cleaned_correct_answers.append(cleaned_answer)
-    return cleaned_given_answer in cleaned_correct_answers
+def convert_given_answer_to_index(given_answer: str) -> int:
+    """If the given answer is a str, converts it to an int. Subtracts one to use it as index."""
+    if given_answer in ['a', 'b', 'c', 'd']:
+        given_answer = convert_str_answer_to_int(given_answer)
+    return int(given_answer) - 1
 
 
-def expected_correct_ratio(difficulty):
+def expected_correct_ratio(difficulty: str) -> float:
     """Returns the expected ratio of correct questions."""
     if difficulty == "easy":
         return 0.8
@@ -98,15 +82,14 @@ def expected_correct_ratio(difficulty):
         return 0.3
 
 
-def calculate_error(current_quiz):
+def calculate_error(current_quiz: Type[helper_classes.Quiz]) -> float:
     y_hat = expected_correct_ratio(current_quiz.difficulty)
-    score = current_quiz.correct/(current_quiz.correct + current_quiz.incorrect)
-    error = (score-y_hat)
+    score = current_quiz.correct / (current_quiz.correct + current_quiz.incorrect)
+    error = (score - y_hat)
     return error
 
 
-def after_quiz(user, current_quiz):
-    """Method to call after quiz has finished. Write results, calculate new scores."""
+def delete_audio_files():
     # Delete all mp3 files after the quiz.
     files_in_dir = os.listdir('./static')
     filtered_files = [file for file in files_in_dir if file.endswith(".mp3")]
@@ -114,17 +97,20 @@ def after_quiz(user, current_quiz):
         path_to_file = os.path.join('./static', file)
         os.remove(path_to_file)
 
-    global previous_quiz
-    previous_quiz = helper_classes.Quiz(user.name,
-                                        current_quiz.difficulty,
-                                        current_quiz.no_questions,
-                                        current_quiz.mode)
+
+def after_quiz(user: Type[helper_classes.User], current_quiz: Type[helper_classes.Quiz]) -> Type[helper_classes.Quiz]:
+    """Method to call after quiz has finished. Write results, calculate new scores."""
+    delete_audio_files()
 
     error = calculate_error(current_quiz)
     quiz_logs.add_new_quiz(current_quiz)
     user.update_user_data(error, current_quiz.difficulty)
     personal_ease.update_personal_sentence_ease(current_quiz.quiz_results)
-
+    # Once all info regarding the completed quiz has been updated, a 'new' quiz previous_quiz gets made
+    # that stores all information.
+    global previous_quiz
+    previous_quiz = current_quiz
+    return previous_quiz
 
 # # Functional in isolation, no implementation done.
 # import smtplib, ssl
