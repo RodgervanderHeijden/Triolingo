@@ -2,8 +2,6 @@ from flask import Flask, render_template, request, url_for, redirect
 
 import helper_classes
 import helper_functions
-from helper_classes import Question
-from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
 
 triolingo_app = Flask(__name__)
 current_user = helper_classes.User(name="Rodger")
@@ -54,7 +52,7 @@ def quiz_page():
 
     if (request.referrer[-18:] == '/quiz_confirmation') or (from_feedback_page is not None):
         global current_question
-        current_question = Question(current_quiz)
+        current_question = helper_classes.Question(current_quiz)
 
     while current_quiz.correct < current_quiz.no_questions:
         sentenceID = int(current_quiz.sentenceIDs[current_quiz.current_question_no])
@@ -65,7 +63,7 @@ def quiz_page():
             current_question.set_sentenceID(sentenceID)
             current_question.set_question_sentence(sentenceID)
 
-            audio, audio_slow = generate_store_tts_audio(current_question.question_sentence)
+            audio, audio_slow = helper_functions.generate_store_tts_audio(current_question.question_sentence)
             # Add an extra dot to change path from "./static" to "../static" as the html is in template-dir
             audio = '.' + audio
             audio_slow = '.' + audio_slow
@@ -85,10 +83,10 @@ def quiz_page():
                                        audio=audio, audio_slow=audio_slow)
 
         # If a new answer is given (so not None), you now want a confirmation/feedback screen to be rendered.
-        elif given_answer is not None:
+        elif (given_answer := given_answer.lower()) is not None:
             url = request.referrer
-            if given_answer.lower() in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
-                converted_answer = convert_answer(given_answer)
+            if given_answer in ['a', 'b', 'c', 'd', '1', '2', '3', '4']:
+                converted_answer = helper_functions.convert_given_answer_to_index(given_answer)
                 is_correct = bool(current_question.correct_index == converted_answer)
                 given_answer = current_question.answer_options[converted_answer]
             else:
@@ -120,7 +118,7 @@ def show_quiz_data():
     """Post-quiz diagnostics. Render df of quiz, update personal sentence ease and language proficiency."""
     global current_quiz
     global previous_quiz
-    previous_quiz = after_quiz(current_user, current_quiz)
+    previous_quiz = helper_functions.after_quiz(current_user, current_quiz)
     # create a new empty quiz for future use
     current_quiz = helper_classes.Quiz(current_user)
     # Construct dataframe with results of completed quiz

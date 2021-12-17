@@ -22,7 +22,7 @@ def initialize_table():
         conn.execute(CREATE_USERS_TABLE)
 
 
-def initialize_new_user(user_name, conn):
+def initialize_new_user(user_name: str, conn):
     language_proficiency = 1
     lr_easy = 1
     lr_moderate = 1
@@ -33,7 +33,7 @@ def initialize_new_user(user_name, conn):
         conn.execute(INSERT_USER, (user_name, language_proficiency, lr_easy, lr_moderate, lr_difficult, last_quiz,))
 
 
-def return_user_data(username):
+def return_user_data(username: str):
     conn = connect_users()
     known_users = pd.read_sql('SELECT DISTINCT user_name FROM users', con=conn)
     if username not in known_users.values:
@@ -41,7 +41,7 @@ def return_user_data(username):
     return pd.read_sql('SELECT * FROM users where user_name = ?', params=[username], con=conn)
 
 
-def update_user_info(user, error, quiz_difficulty):
+def update_user_info(user: str, error: float, quiz_difficulty: str):
     """Update the user info ie the proficiency and learning rate multiplicators.
 
     Some voodoo is present here as well. As to prevent easy quizzes to eventually become
