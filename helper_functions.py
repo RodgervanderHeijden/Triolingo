@@ -1,23 +1,25 @@
-from databases import quiz_logs, personal_ease
-from gtts import gTTS
-from random import randint
 import os
+from random import randint
+
+from gtts import gTTS
+
+from databases import quiz_logs, personal_ease
+
 global previous_quiz
 
 
 def create_quiz_object_with_settings(empty_quiz_instance, request):
     """Takes the empty quiz instance with the parameters the user has selected in his request - if any."""
-    if request.form.get("difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
-        empty_quiz_instance.set_quiz_params(
-            difficulty=request.form.get('difficulty'),
-                            no_questions=request.form.get('amount'),
-                            mode=request.form.get("mode"))
-    else: # If after a quiz the "repeat with same settings" button is used, there's an empty request
+    if request.form.get(
+            "difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
+        empty_quiz_instance.set_quiz_params(difficulty=request.form.get('difficulty'),
+                                            no_questions=request.form.get('amount'),
+                                            mode=request.form.get("mode"))
+    else:  # If after a quiz the "repeat with same settings" button is used, there's an empty request
         global previous_quiz
-        empty_quiz_instance.set_quiz_params(
-                                           difficulty=previous_quiz.difficulty,
-                                           no_questions=previous_quiz.no_questions,
-                                           mode=previous_quiz.mode)
+        empty_quiz_instance.set_quiz_params(difficulty=previous_quiz.difficulty,
+                                            no_questions=previous_quiz.no_questions,
+                                            mode=previous_quiz.mode)
 
 
 def initialize_quiz_questions(current_quiz):
@@ -29,18 +31,19 @@ def initialize_quiz_questions(current_quiz):
     current_quiz.retrieve_sentences_from_index(chosen_indices)
 
 
-def generate_store_tts_audio(sentence):
-    tts = gTTS(text=sentence, lang='pl', slow=False)
-    r = randint(1,20000000)
-    audio_file = 'audio' + str(r) + '.mp3'
-    full_url = './static/' + audio_file
-    tts.save(full_url) # save as mp3
+def create_tts_audio(sentence, slow, random_number):
+    audio_file_name = 'audio' + str(random_number) + '.mp3'
+    full_file_path = './static/' + audio_file_name
+    tts = gTTS(text=sentence, lang='pl', slow=slow)
+    tts.save(full_file_path)  # save as mp3
+    return full_file_path
 
-    tts_slow = gTTS(text=sentence, lang='pl', slow=True)
-    audio_file_2 = 'audio' + str(r+1) + '.mp3'
-    full_url_2 = './static/' + audio_file_2
-    tts_slow.save(full_url_2) # save as mp3
-    return full_url, full_url_2
+
+def generate_store_tts_audio(sentence):
+    r = randint(1, 20000000)
+    normal_speed_file_path = create_tts_audio(sentence, slow=False, random_number=r)
+    slow_speed_file_path = create_tts_audio(sentence, slow=True, random_number=r + 1)
+    return normal_speed_file_path, slow_speed_file_path
 
 
 # Import the dataframe with all sentences
@@ -77,8 +80,8 @@ def expected_correct_ratio(difficulty):
 
 def calculate_error(current_quiz):
     y_hat = expected_correct_ratio(current_quiz.difficulty)
-    score = current_quiz.correct/(current_quiz.correct + current_quiz.incorrect)
-    error = (score-y_hat)
+    score = current_quiz.correct / (current_quiz.correct + current_quiz.incorrect)
+    error = (score - y_hat)
     return error
 
 
@@ -100,7 +103,6 @@ def after_quiz(user, current_quiz):
     global previous_quiz
     previous_quiz = current_quiz
     return previous_quiz
-
 
 # # Functional in isolation, no implementation done.
 # import smtplib, ssl

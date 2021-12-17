@@ -1,7 +1,9 @@
+import string
+
+import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import numpy as np
-import string
+
 from databases import users, personal_ease
 
 
