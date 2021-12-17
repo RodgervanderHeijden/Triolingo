@@ -89,14 +89,18 @@ def calculate_error(current_quiz: Type[helper_classes.Quiz]) -> float:
     return error
 
 
-def after_quiz(user: Type[helper_classes.User], current_quiz: Type[helper_classes.Quiz]) -> Type[helper_classes.Quiz]:
-    """Method to call after quiz has finished. Write results, calculate new scores."""
+def delete_audio_files():
     # Delete all mp3 files after the quiz.
     files_in_dir = os.listdir('./static')
     filtered_files = [file for file in files_in_dir if file.endswith(".mp3")]
     for file in filtered_files:
         path_to_file = os.path.join('./static', file)
         os.remove(path_to_file)
+
+
+def after_quiz(user: Type[helper_classes.User], current_quiz: Type[helper_classes.Quiz]) -> Type[helper_classes.Quiz]:
+    """Method to call after quiz has finished. Write results, calculate new scores."""
+    delete_audio_files()
 
     error = calculate_error(current_quiz)
     quiz_logs.add_new_quiz(current_quiz)
