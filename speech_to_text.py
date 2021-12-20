@@ -7,9 +7,10 @@
 # For offline speech recognition, pocketsphinx is the only suggested method (at 16/12/2021)
 # But unfortunately the accuracy even in English makes it unusable. Thus,
 # having an internet connection is required
-
+import playsound
 import speech_recognition as sr
 r = sr.Recognizer()
+from deep_translator import GoogleTranslator
 # TODO: deep_translator can easily translate sentences, may be useful in the future
 
 
@@ -33,6 +34,17 @@ def generate_store_tts_audio(sentence, lang):
     audio_file = 'audio' + str(r) + '.mp3'
     full_url = './static/' + audio_file
     tts.save(full_url) # save as mp3
+    playsound.playsound(full_url)
+
 
 print(transcribed_text)
 generate_store_tts_audio(transcribed_text, 'nl')
+translated_text_en = GoogleTranslator(source='auto', target='en').translate(transcribed_text)
+print(translated_text_en)
+generate_store_tts_audio(translated_text_en, 'en')
+translated_text_pl = GoogleTranslator(source='auto', target='pl').translate(transcribed_text)
+print(translated_text_pl)
+generate_store_tts_audio(translated_text_pl, 'pl')
+translated_text_nl = GoogleTranslator(source='auto', target='nl').translate(transcribed_text)
+print(translated_text_nl)
+generate_store_tts_audio(translated_text_nl, 'nl')
