@@ -107,17 +107,17 @@ class Question:
     def generate_answer_options(self):
         """Generates three incorrect answer options for multiple choice questions.
 
-            In case of multiple choice questions, three incorrect options have to be selected.
-            With just questionID, the first answer of all_correct_answers is taken (fewer args passed),
-            and three random numbers are chosen for the incorrect options. Theoretically, if a question
-            has multiple correct translations in the database, multiple options could be correct. However,
-            as evaluation takes this into account, it will also be evaluated correctly, and no tricky
-            edge case mitigation should be done to combat this unlikely event.
-            Return both the already shuffled list with 4 answer options and the index of a correct one."""
-        self.correct_answers, incorrect_answers = personal_ease.get_answer_options(self.sentenceID)
+        In case of multiple choice questions, three incorrect options have to be selected.
+        With just questionID, the first answer of all_correct_answers is taken (fewer args passed),
+        and three random numbers are chosen for the incorrect options. Theoretically, if a question
+        has multiple correct translations in the database, multiple options could be correct. However,
+        as evaluation takes this into account, it will also be evaluated correctly, and no tricky
+        edge case mitigation should be done to combat this unlikely event.
+        Return both the already shuffled list with 4 answer options and the index of a correct one."""
+        self.correct_answers, self.incorrect_answers = personal_ease.get_answer_options(self.sentenceID)
 
         multiple_choice_options = [self.correct_answers[0]]
-        for incorrect_answer in incorrect_answers:
+        for incorrect_answer in self.incorrect_answers:
             multiple_choice_options.append(incorrect_answer)
         np.random.shuffle(multiple_choice_options)
         index = [multiple_choice_options.index(x) for x in multiple_choice_options if x in self.correct_answers][0]

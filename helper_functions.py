@@ -1,19 +1,18 @@
 import os
 from random import randint
+from typing import Type, Tuple
 
 from gtts import gTTS
 
 import helper_classes
 from databases import quiz_logs, personal_ease
-from typing import Type, Tuple
 
 global previous_quiz
 
 
 def create_quiz_object_with_settings(empty_quiz_instance: Type[helper_classes.Quiz], request) -> None:
     """Takes the empty quiz instance with the parameters the user has selected in his request - if any."""
-    if request.form.get(
-            "difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
+    if request.form.get("difficulty") is not None:  # If new quiz settings are selected (= not "repeat with same settings" after quiz)
         empty_quiz_instance.set_quiz_params(difficulty=request.form.get('difficulty'),
                                             no_questions=request.form.get('amount'),
                                             mode=request.form.get("mode"))
@@ -27,7 +26,6 @@ def create_quiz_object_with_settings(empty_quiz_instance: Type[helper_classes.Qu
 def initialize_quiz_questions(current_quiz: Type[helper_classes.Quiz]) -> None:
     """Creates a quiz instance by first retrieving the quiz settings from the request,
     then creating the sampling distribution, then doing the sampling and getting the sentenceIDs."""
-    # current_quiz = initialize_quiz_settings(current_user, request)
     distribution_params = current_quiz.calculate_distribution_parameters()
     chosen_indices = current_quiz.draw_words_from_chosen_distribution(distribution_params)
     current_quiz.retrieve_sentences_from_index(chosen_indices)
