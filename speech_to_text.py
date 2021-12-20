@@ -7,6 +7,9 @@
 # For offline speech recognition, pocketsphinx is the only suggested method (at 16/12/2021)
 # But unfortunately the accuracy even in English makes it unusable. Thus,
 # having an internet connection is required
+import winsound
+import os
+
 import playsound
 import speech_recognition as sr
 r = sr.Recognizer()
@@ -15,8 +18,9 @@ from deep_translator import GoogleTranslator
 
 
 with sr.Microphone() as source:
-    print("You can talk now.")
+    winsound.Beep(1000, 100)
     audio = r.listen(source)
+    winsound.Beep(1000, 100)
     try:
         transcribed_text = r.recognize_google(audio, language="nl-NL")
     except ValueError:
@@ -37,6 +41,14 @@ def generate_store_tts_audio(sentence, lang):
     playsound.playsound(full_url)
 
 
+def delete_audio_files():
+    # Delete all mp3 files after the quiz.
+    files_in_dir = os.listdir('./static')
+    filtered_files = [file for file in files_in_dir if file.endswith(".mp3")]
+    for file in filtered_files:
+        path_to_file = os.path.join('./static', file)
+        os.remove(path_to_file)
+
 print(transcribed_text)
 generate_store_tts_audio(transcribed_text, 'nl')
 translated_text_en = GoogleTranslator(source='auto', target='en').translate(transcribed_text)
@@ -48,3 +60,5 @@ generate_store_tts_audio(translated_text_pl, 'pl')
 translated_text_nl = GoogleTranslator(source='auto', target='nl').translate(transcribed_text)
 print(translated_text_nl)
 generate_store_tts_audio(translated_text_nl, 'nl')
+delete_audio_files()
+
