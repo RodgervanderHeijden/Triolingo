@@ -4,10 +4,10 @@ import csv
 import pandas as pd
 import numpy as np
 
-CREATE_PERSONAL_TABLE = "CREATE TABLE IF NOT EXISTS personal_ease (sentenceID INTEGER, sentence_pl TEXT," \
+CREATE_PERSONAL_TABLE = "CREATE TABLE IF NOT EXISTS personal_ease_pl (sentenceID INTEGER, sentence_pl TEXT," \
                         "sentence_en TEXT, sentence_nl TEXT, lang TEXT, words_in_sentence TEXT," \
                         "sentence_ease FLOAT, personal_sentence_ease FLOAT)"
-UPDATE_USER_STATS = "UPDATE personal_ease " \
+UPDATE_USER_STATS = "UPDATE personal_ease_pl " \
                     "SET sentence_ease = ?, personal_sentence_ease = ? " \
                     "WHERE sentenceID IN {};"
 
@@ -29,7 +29,7 @@ def initialize_table():
     conn = connect_personal_sentences()
     with conn:
         conn.execute(CREATE_PERSONAL_TABLE)
-        df.to_sql(name='personal_ease', con=conn, if_exists='replace', index=False)
+        df.to_sql(name='personal_ease_pl', con=conn, if_exists='replace', index=False)
 
 
 def return_chosen_sentenceIDs(list_chosen_sentence_rownumbers):
@@ -39,7 +39,7 @@ def return_chosen_sentenceIDs(list_chosen_sentence_rownumbers):
         result_set = conn.execute(
             'SELECT * '
             'FROM (SELECT row_number() OVER (ORDER BY personal_sentence_ease DESC) AS rowNum, * '
-            'FROM personal_ease)'
+            'FROM personal_ease_pl)'
             'WHERE rowNum IN (%s)' %
             ','.join('?' * len(list_chosen_sentence_rownumbers)), list_chosen_sentence_rownumbers)
         column_list = ['rowNum', 'sentenceID', 'sentence_pl', 'sentence_en', 'sentence_nl', 'lang',
@@ -52,7 +52,7 @@ def get_question_sentence(sentenceID):
     conn = connect_personal_sentences()
     with conn:
         result = conn.execute('SELECT sentence_pl '
-                              'FROM personal_ease '
+                              'FROM personal_ease_pl '
                               'WHERE sentenceID = ?', (sentenceID,)).fetchone()
     return result[0]
 
@@ -73,7 +73,7 @@ def get_answer_options(sentenceID):
     conn = connect_personal_sentences()
     with conn:
         correct_options = conn.execute('SELECT sentence_en, sentence_nl, lang '
-                                       'FROM personal_ease '
+                                       'FROM personal_ease_pl '
                                        'WHERE sentenceID = ?', (sentenceID,)).fetchall()
 
     three_random_numbers = np.random.choice(a=range(60039), size=3, replace=False)
@@ -85,7 +85,7 @@ def get_answer_options(sentenceID):
         incorrect_options = conn.execute('SELECT sentence_en, sentence_nl, lang '
                                          'FROM (SELECT row_number() OVER('
                                          '      ORDER BY personal_sentence_ease DESC) AS rowNum, * '
-                                         '      FROM personal_ease) '
+                                         '      FROM personal_ease_pl) '
                                          'WHERE (rowNum = ? OR rowNum = ? OR rowNum = ?)',
                                          (int(number_one), int(number_two), int(number_three), )).fetchmany(3)
 
@@ -106,7 +106,7 @@ def update_personal_sentence_ease(quiz_results):
     conn = connect_personal_sentences()
     with conn:
         personal_sentence_eases = conn.execute("SELECT personal_sentence_ease, sentenceID "
-                                               "FROM personal_ease "
+                                               "FROM personal_ease_pl "
                                                "WHERE sentenceID IN (%s)" %
                                                ','.join('?' * len(sentenceIDs)), sentenceIDs).fetchall()
         for i in range(len(sentenceIDs)):
@@ -122,6 +122,6 @@ def update_personal_sentence_ease(quiz_results):
             else:
                 new_personal_sentence_ease = float(current_personal_sentence_ease * 0.80)
                 
-            conn.execute("UPDATE personal_ease "
+            conn.execute("UPDATE personal_ease_pl "
                          "SET personal_sentence_ease = ? "
                          "WHERE sentenceID = ?", (new_personal_sentence_ease, sentenceIDs[i]))
