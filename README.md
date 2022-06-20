@@ -28,9 +28,3 @@ for each difficulty setting (easy, moderate, difficult). The expectation for eas
 60% and for difficult ones 30%. Your actual quiz results determine how much the respective learning rate changes. With
 repeated scores of 100% your language proficiency value will increase rapidly, sampling ever increasingly difficult
 questions.
-
-## Test it out
-
-Try Triolingo out for yourself [here](www.vanderheijden.pythonanywhere.com) (though without any progression or storage
-of results; the web demo merely exists to provide an insight to the web app. In case you are a programmer, the code on
-this repo requires some additional files, which I'll be happy to provide if you contact me.
