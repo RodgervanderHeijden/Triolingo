@@ -3,8 +3,8 @@ from flask import Flask, render_template, request, url_for, redirect
 from helper_classes import User, Quiz, Question
 from helper_functions import after_quiz, convert_answer, generate_store_tts_audio
 
-triolingo_app = Flask(__name__)
-current_user = User(name="Rodger")
+TRIOLINGO_APP = Flask(__name__)
+CURRENT_USER = User(name="Rodger")
 global current_quiz
 
 
